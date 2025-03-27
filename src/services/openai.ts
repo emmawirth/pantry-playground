@@ -1,9 +1,17 @@
-
 import OpenAI from 'openai';
 import { toast } from 'sonner';
 
 // Initialize OpenAI client with error handling
-const apiKey = import.meta.env.VITE_OPENAI_API_KEY;
+let apiKey = import.meta.env.VITE_OPENAI_API_KEY;
+
+// Check for API key in localStorage or window object (for immediate use after setting)
+const STORAGE_KEY = 'pantrypal_openai_key';
+const storedKey = typeof localStorage !== 'undefined' ? localStorage.getItem(STORAGE_KEY) : null;
+if (!apiKey && storedKey) {
+  apiKey = storedKey;
+} else if (!apiKey && typeof window !== 'undefined' && window.OPENAI_API_KEY) {
+  apiKey = window.OPENAI_API_KEY;
+}
 
 // Create a default mock response for when API key is missing
 const mockRecipes = [
@@ -110,11 +118,21 @@ export interface RecipeSuggestion {
 
 export async function getRecipeSuggestions(pantryItems: string[]): Promise<RecipeSuggestion[]> {
   try {
+    // Check if API key has been set in window after component initialization
+    if (!openai && typeof window !== 'undefined' && window.OPENAI_API_KEY) {
+      try {
+        openai = new OpenAI({ apiKey: window.OPENAI_API_KEY });
+        apiKey = window.OPENAI_API_KEY;
+      } catch (error) {
+        console.error('Failed to initialize OpenAI client with window API key:', error);
+      }
+    }
+
     // If OpenAI is not initialized or API key is missing, return mock data
     if (!openai || !apiKey) {
       console.warn('Using mock recipe data because OpenAI API key is not configured');
       toast.warning('Using demo recipe data', { 
-        description: 'Add your OpenAI API key in .env file to get custom recipes.' 
+        description: 'Add your OpenAI API key to get custom recipes.' 
       });
       return mockRecipes as RecipeSuggestion[];
     }

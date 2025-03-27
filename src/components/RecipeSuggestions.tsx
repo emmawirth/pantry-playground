@@ -1,9 +1,10 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Loader2 } from 'lucide-react';
 import { getRecipeSuggestions, RecipeSuggestion } from '@/services/openai';
 import Badge from './ui-components/Badge';
 import { toast } from 'sonner';
+import { ApiKeyDialog } from './ApiKeyDialog';
 
 interface RecipeSuggestionsProps {
   pantryItems: string[];
@@ -71,12 +72,15 @@ const RecipeSuggestions: React.FC<RecipeSuggestionsProps> = ({ pantryItems, onCl
     return (
       <div className="p-4 text-center">
         <p className="text-red-500 mb-4">{error}</p>
-        <button
-          onClick={fetchSuggestions}
-          className="px-4 py-2 bg-pantry-green text-white rounded-lg hover:bg-pantry-green-dark transition-colors"
-        >
-          Try Again
-        </button>
+        <div className="flex flex-col gap-3 items-center">
+          <button
+            onClick={fetchSuggestions}
+            className="px-4 py-2 bg-pantry-green text-white rounded-lg hover:bg-pantry-green-dark transition-colors"
+          >
+            Try Again
+          </button>
+          <ApiKeyDialog />
+        </div>
       </div>
     );
   }
@@ -85,12 +89,15 @@ const RecipeSuggestions: React.FC<RecipeSuggestionsProps> = ({ pantryItems, onCl
     return (
       <div className="p-4 text-center">
         <p className="text-muted-foreground">No recipe suggestions available.</p>
-        <button
-          onClick={fetchSuggestions}
-          className="mt-4 px-4 py-2 bg-pantry-green text-white rounded-lg hover:bg-pantry-green-dark transition-colors"
-        >
-          Generate Suggestions
-        </button>
+        <div className="mt-4 flex flex-col gap-3 items-center">
+          <button
+            onClick={fetchSuggestions}
+            className="px-4 py-2 bg-pantry-green text-white rounded-lg hover:bg-pantry-green-dark transition-colors"
+          >
+            Generate Suggestions
+          </button>
+          <ApiKeyDialog />
+        </div>
       </div>
     );
   }
@@ -99,12 +106,15 @@ const RecipeSuggestions: React.FC<RecipeSuggestionsProps> = ({ pantryItems, onCl
     <div className="space-y-6">
       <div className="flex justify-between items-center">
         <h2 className="text-xl font-semibold">AI Recipe Suggestions</h2>
-        <button
-          onClick={onClose}
-          className="text-muted-foreground hover:text-foreground transition-colors"
-        >
-          Close
-        </button>
+        <div className="flex gap-2 items-center">
+          <ApiKeyDialog />
+          <button
+            onClick={onClose}
+            className="text-muted-foreground hover:text-foreground transition-colors"
+          >
+            Close
+          </button>
+        </div>
       </div>
 
       <div className="space-y-6">
