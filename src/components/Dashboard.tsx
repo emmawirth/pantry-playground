@@ -1,7 +1,7 @@
-
 import React, { useState } from 'react';
-import { Search, ChevronRight, Filter } from 'lucide-react';
+import { Search, ChevronRight, Filter, Sparkles } from 'lucide-react';
 import RecipeCard from './RecipeCard';
+import RecipeSuggestions from './RecipeSuggestions';
 
 const recipesData = [
   {
@@ -44,6 +44,19 @@ const recipesData = [
 
 const Dashboard: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState('');
+  const [showSuggestions, setShowSuggestions] = useState(false);
+  const [pantryItems] = useState([
+    'Chicken breast',
+    'Rice',
+    'Onions',
+    'Garlic',
+    'Olive oil',
+    'Mixed vegetables',
+    'Soy sauce',
+    'Ginger',
+    'Bell peppers',
+    'Mushrooms'
+  ]);
   
   const handleRecipeClick = (id: string) => {
     console.log(`Recipe clicked: ${id}`);
@@ -86,9 +99,18 @@ const Dashboard: React.FC = () => {
       <div className="px-4 mb-8">
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-lg font-semibold">Smart Picks</h2>
-          <button className="text-sm text-muted-foreground flex items-center">
-            See all <ChevronRight size={16} />
-          </button>
+          <div className="flex items-center space-x-2">
+            <button 
+              onClick={() => setShowSuggestions(true)}
+              className="text-sm text-pantry-green flex items-center hover:text-pantry-green-dark transition-colors"
+            >
+              <Sparkles size={16} className="mr-1" />
+              AI Suggestions
+            </button>
+            <button className="text-sm text-muted-foreground flex items-center">
+              See all <ChevronRight size={16} />
+            </button>
+          </div>
         </div>
         
         <div className="flex space-x-4 overflow-x-auto pb-4 scrollbar-none -mx-4 px-4">
@@ -108,7 +130,7 @@ const Dashboard: React.FC = () => {
         <h2 className="text-lg font-semibold mb-4">Your Pantry</h2>
         <div className="grid grid-cols-3 gap-3">
           {[
-            { label: 'Total Items', value: '28', color: 'bg-blue-50 text-blue-600' },
+            { label: 'Total Items', value: '24', color: 'bg-pantry-green/10 text-pantry-green' },
             { label: 'Expiring Soon', value: '6', color: 'bg-amber-50 text-amber-600' },
             { label: 'Recently Used', value: '12', color: 'bg-pantry-green/10 text-pantry-green' },
           ].map((item, index) => (
@@ -144,6 +166,20 @@ const Dashboard: React.FC = () => {
           ))}
         </div>
       </div>
+
+      {/* Recipe Suggestions Modal */}
+      {showSuggestions && (
+        <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="bg-white rounded-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+            <div className="p-6">
+              <RecipeSuggestions 
+                pantryItems={pantryItems}
+                onClose={() => setShowSuggestions(false)}
+              />
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
