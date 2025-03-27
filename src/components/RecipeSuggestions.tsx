@@ -1,7 +1,9 @@
+
 import React, { useState } from 'react';
 import { Loader2 } from 'lucide-react';
 import { getRecipeSuggestions, RecipeSuggestion } from '@/services/openai';
 import Badge from './ui-components/Badge';
+import { toast } from 'sonner';
 
 interface RecipeSuggestionsProps {
   pantryItems: string[];
@@ -17,16 +19,30 @@ const RecipeSuggestions: React.FC<RecipeSuggestionsProps> = ({ pantryItems, onCl
     setLoading(true);
     setError(null);
     try {
-      console.log('Starting recipe suggestions fetch...');
+      console.log('Starting recipe suggestions fetch...', pantryItems);
+      
+      if (!pantryItems || pantryItems.length === 0) {
+        throw new Error('No pantry items available to generate recipes.');
+      }
+      
       const recipeSuggestions = await getRecipeSuggestions(pantryItems);
       console.log('Received suggestions:', recipeSuggestions);
-      setSuggestions(recipeSuggestions);
+      
+      if (Array.isArray(recipeSuggestions) && recipeSuggestions.length > 0) {
+        setSuggestions(recipeSuggestions);
+      } else {
+        throw new Error('No recipe suggestions were generated. Please try again.');
+      }
     } catch (err) {
       console.error('Error in fetchSuggestions:', err);
       if (err instanceof Error) {
         setError(err.message);
+        toast.error('Recipe generation failed', {
+          description: err.message
+        });
       } else {
         setError('Failed to generate recipe suggestions. Please try again.');
+        toast.error('Recipe generation failed');
       }
     } finally {
       setLoading(false);
@@ -34,7 +50,7 @@ const RecipeSuggestions: React.FC<RecipeSuggestionsProps> = ({ pantryItems, onCl
   };
 
   React.useEffect(() => {
-    if (pantryItems.length > 0) {
+    if (pantryItems && pantryItems.length > 0) {
       fetchSuggestions();
     } else {
       setError('No pantry items available to generate recipes.');
@@ -131,4 +147,4 @@ const RecipeSuggestions: React.FC<RecipeSuggestionsProps> = ({ pantryItems, onCl
   );
 };
 
-export default RecipeSuggestions; 
+export default RecipeSuggestions;
