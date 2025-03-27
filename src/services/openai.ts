@@ -29,7 +29,7 @@ const mockRecipes = [
       "Serve hot over rice if desired."
     ],
     cookingTime: "25 minutes",
-    difficulty: "Beginner",
+    difficulty: "Beginner" as const,
     dietaryLabels: ["High Protein"]
   },
   {
@@ -55,7 +55,7 @@ const mockRecipes = [
       "Cook for 3-4 minutes until everything is heated through."
     ],
     cookingTime: "20 minutes",
-    difficulty: "Beginner",
+    difficulty: "Beginner" as const,
     dietaryLabels: ["Vegetarian"]
   },
   {
@@ -80,7 +80,7 @@ const mockRecipes = [
       "Toss to combine and serve hot with fresh herbs if desired."
     ],
     cookingTime: "15 minutes",
-    difficulty: "Beginner",
+    difficulty: "Beginner" as const,
     dietaryLabels: ["Vegetarian"]
   }
 ];
@@ -116,7 +116,7 @@ export async function getRecipeSuggestions(pantryItems: string[]): Promise<Recip
       toast.warning('Using demo recipe data', { 
         description: 'Add your OpenAI API key in .env file to get custom recipes.' 
       });
-      return mockRecipes;
+      return mockRecipes as RecipeSuggestion[];
     }
 
     console.log('Generating recipe suggestions for items:', pantryItems);
@@ -128,7 +128,7 @@ export async function getRecipeSuggestions(pantryItems: string[]): Promise<Recip
     3. List of ingredients (including quantities)
     4. Step-by-step instructions
     5. Estimated cooking time
-    6. Difficulty level (Beginner/Intermediate/Advanced)
+    6. Difficulty level (must be exactly one of these values: "Beginner", "Intermediate", or "Advanced")
     7. Dietary labels (e.g., Vegetarian, Vegan, Gluten-Free, etc.)
     
     Format the response as a JSON array with these fields: title, description, ingredients, instructions, cookingTime, difficulty, dietaryLabels`;
@@ -161,10 +161,25 @@ export async function getRecipeSuggestions(pantryItems: string[]): Promise<Recip
     
     if (!response.recipes || !Array.isArray(response.recipes) || response.recipes.length === 0) {
       console.warn('Invalid recipe format from API, using fallback');
-      return mockRecipes;
+      return mockRecipes as RecipeSuggestion[];
     }
     
-    return response.recipes;
+    // Ensure the difficulty property conforms to the RecipeSuggestion type
+    const processedRecipes = response.recipes.map((recipe: any) => {
+      // Ensure difficulty is one of the accepted values
+      let difficulty: 'Beginner' | 'Intermediate' | 'Advanced' = 'Beginner';
+      
+      if (recipe.difficulty === 'Intermediate' || recipe.difficulty === 'Advanced') {
+        difficulty = recipe.difficulty;
+      }
+      
+      return {
+        ...recipe,
+        difficulty
+      };
+    });
+    
+    return processedRecipes as RecipeSuggestion[];
   } catch (error) {
     console.error('Error getting recipe suggestions:', error);
     
@@ -177,6 +192,6 @@ export async function getRecipeSuggestions(pantryItems: string[]): Promise<Recip
     
     // Return mock data as fallback
     console.warn('Falling back to mock recipe data after error');
-    return mockRecipes;
+    return mockRecipes as RecipeSuggestion[];
   }
 }
