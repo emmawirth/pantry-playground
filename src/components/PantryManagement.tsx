@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Search, MapPin, Info, ArrowDown, ArrowUp, Trash2, Filter, Check } from 'lucide-react';
 import PantryItem from './PantryItem';
@@ -7,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Checkbox } from '@/components/ui/checkbox';
+import RecipeSuggestions from './RecipeSuggestions';
 
 interface PantryItemType {
   id: string;
@@ -38,6 +38,7 @@ const PantryManagement: React.FC<PantryManagementProps> = ({ pantryItems, setPan
     type: 'name',
     direction: 'none'
   });
+  const [showRecipeSuggestionsModal, setShowRecipeSuggestionsModal] = useState(false);
   
   const handleItemSelection = (id: string) => {
     setPantryItems(items => 
@@ -67,18 +68,8 @@ const PantryManagement: React.FC<PantryManagementProps> = ({ pantryItems, setPan
       description: `Using ${selectedItems.length} selected ingredients`,
     });
     
-    setTimeout(() => {
-      // Random success or failure response
-      if (Math.random() > 0.3) {
-        toast.success('Recipes found!', {
-          description: 'Check the Recipes tab for suggestions.'
-        });
-      } else {
-        toast.error('No recipe found', {
-          description: 'Oops! Looks like there is no recipe for this food combination. Please try again!'
-        });
-      }
-    }, 2000);
+    // Show the recipe suggestions modal
+    setShowRecipeSuggestionsModal(true);
   };
   
   const handleOpenDonateModal = () => {
@@ -421,6 +412,20 @@ const PantryManagement: React.FC<PantryManagementProps> = ({ pantryItems, setPan
               </div>
             )}
           </div>
+        </DialogContent>
+      </Dialog>
+      
+      {/* Recipe Suggestions Modal */}
+      <Dialog 
+        open={showRecipeSuggestionsModal} 
+        onOpenChange={setShowRecipeSuggestionsModal}
+        className="max-w-3xl"
+      >
+        <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
+          <RecipeSuggestions 
+            pantryItems={pantryItems.filter(item => item.selected).map(item => item.name)} 
+            onClose={() => setShowRecipeSuggestionsModal(false)} 
+          />
         </DialogContent>
       </Dialog>
     </div>
