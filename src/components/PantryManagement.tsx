@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Search, MapPin, Info, ArrowDown, ArrowUp, Trash2, Filter, Check } from 'lucide-react';
 import PantryItem from './PantryItem';
@@ -7,6 +8,9 @@ import { Input } from '@/components/ui/input';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Checkbox } from '@/components/ui/checkbox';
 import RecipeSuggestions from './RecipeSuggestions';
+import { useAuth } from '@/context/AuthContext';
+import { supabase } from '@/integrations/supabase/client';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 
 interface PantryItemType {
   id: string;
@@ -39,6 +43,71 @@ const PantryManagement: React.FC<PantryManagementProps> = ({ pantryItems, setPan
     direction: 'none'
   });
   const [showRecipeSuggestionsModal, setShowRecipeSuggestionsModal] = useState(false);
+  const { user } = useAuth();
+  const queryClient = useQueryClient();
+  
+  // Fetch pantry items from Supabase
+  const { data: supabaseItems, isLoading } = useQuery({
+    queryKey: ['pantryItems', user?.id],
+    queryFn: async () => {
+      if (!user) return [];
+      
+      const { data, error } = await supabase
+        .from('pantry_items')
+        .select('*')
+        .order('created_at', { ascending: false });
+      
+      if (error) {
+        console.error('Error fetching pantry items:', error);
+        toast.error('Failed to load pantry items');
+        return [];
+      }
+      
+      // Transform the data to match our PantryItemType
+      return data.map(item => ({
+        id: item.id,
+        name: item.name,
+        brand: item.brand,
+        quantity: item.quantity,
+        expirationDate: item.expiration_date,
+        expirationStatus: item.expiration_status as 'fresh' | 'expiring' | 'expired',
+        image: item.image,
+        selected: false
+      }));
+    },
+    enabled: !!user
+  });
+  
+  // Delete item mutation
+  const deleteItemMutation = useMutation({
+    mutationFn: async (id: string) => {
+      if (!user) return;
+      
+      const { error } = await supabase
+        .from('pantry_items')
+        .delete()
+        .eq('id', id);
+      
+      if (error) {
+        console.error('Error deleting pantry item:', error);
+        throw new Error('Failed to delete item');
+      }
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['pantryItems'] });
+      toast.success('Item removed from pantry');
+    },
+    onError: () => {
+      toast.error('Failed to remove item');
+    }
+  });
+  
+  // Update local pantry items when Supabase data changes
+  useEffect(() => {
+    if (supabaseItems) {
+      setPantryItems(supabaseItems);
+    }
+  }, [supabaseItems, setPantryItems]);
   
   const handleItemSelection = (id: string) => {
     setPantryItems(items => 
@@ -49,8 +118,7 @@ const PantryManagement: React.FC<PantryManagementProps> = ({ pantryItems, setPan
   };
 
   const handleRemoveItem = (id: string) => {
-    setPantryItems(items => items.filter(item => item.id !== id));
-    toast.success('Item removed from pantry');
+    deleteItemMutation.mutate(id);
   };
   
   const selectedCount = pantryItems.filter(item => item.selected).length;
@@ -174,6 +242,14 @@ const PantryManagement: React.FC<PantryManagementProps> = ({ pantryItems, setPan
   };
   
   const expiringItemsCount = pantryItems.filter(item => item.expirationStatus === 'expiring').length;
+  
+  if (isLoading) {
+    return (
+      <div className="flex justify-center items-center h-64">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-pantry-green"></div>
+      </div>
+    );
+  }
   
   return (
     <div className="pb-24">

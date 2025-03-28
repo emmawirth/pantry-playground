@@ -4,11 +4,13 @@ import { X, Scan, Receipt, Mic, PenSquare, Check, Trash2, Plus } from 'lucide-re
 import { toast } from 'sonner';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
+import { supabase } from '@/integrations/supabase/client';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 
 interface AddItemOverlayProps {
   isOpen: boolean;
   onClose: () => void;
-  onAddItems: (items: {name: string, brand: string, quantity: string}[]) => void;
+  userId?: string;
 }
 
 type InputMethod = 'barcode' | 'receipt' | 'voice' | 'manual' | null;
@@ -16,15 +18,72 @@ type InputMethod = 'barcode' | 'receipt' | 'voice' | 'manual' | null;
 const AddItemOverlay: React.FC<AddItemOverlayProps> = ({
   isOpen,
   onClose,
-  onAddItems,
+  userId,
 }) => {
   const [inputMethod, setInputMethod] = useState<InputMethod>(null);
   const [detectedItems, setDetectedItems] = useState<{ name: string; brand: string; quantity: string; selected: boolean }[]>([]);
   const [manualInput, setManualInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [isRecording, setIsRecording] = useState(false);
+  const queryClient = useQueryClient();
 
   if (!isOpen) return null;
+
+  // Mutation to add items to Supabase
+  const addItemsMutation = useMutation({
+    mutationFn: async (items: { name: string; brand: string; quantity: string }[]) => {
+      if (!userId) {
+        toast.error('You must be logged in to add items');
+        throw new Error('User not authenticated');
+      }
+
+      // Generate random expiration dates and statuses for demo
+      const itemsWithExpirationInfo = items.map(item => {
+        // Generate expiration date (random future date)
+        const days = Math.floor(Math.random() * 30) + 15;
+        const date = new Date();
+        date.setDate(date.getDate() + days);
+        const expirationDate = `${date.getMonth() + 1}/${date.getDate()}/${date.getFullYear()}`;
+        
+        // Determine expiration status based on date
+        let expirationStatus: 'fresh' | 'expiring' | 'expired';
+        if (days > 14) {
+          expirationStatus = 'fresh';
+        } else if (days > 0) {
+          expirationStatus = 'expiring';
+        } else {
+          expirationStatus = 'expired';
+        }
+
+        return {
+          name: item.name,
+          brand: item.brand,
+          quantity: item.quantity,
+          expiration_date: expirationDate,
+          expiration_status: expirationStatus,
+          user_id: userId
+        };
+      });
+
+      const { error } = await supabase
+        .from('pantry_items')
+        .insert(itemsWithExpirationInfo);
+
+      if (error) {
+        console.error('Error adding pantry items:', error);
+        throw new Error('Failed to add items to pantry');
+      }
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['pantryItems'] });
+      toast.success(`Items added to pantry`);
+      onClose();
+    },
+    onError: (error) => {
+      console.error('Error in mutation:', error);
+      toast.error('Failed to add items to pantry');
+    }
+  });
 
   const handleMethodSelect = (method: InputMethod) => {
     setInputMethod(method);
@@ -113,9 +172,7 @@ const AddItemOverlay: React.FC<AddItemOverlayProps> = ({
       return;
     }
     
-    onAddItems(selectedItems);
-    toast.success(`${selectedItems.length} items added to pantry`);
-    onClose();
+    addItemsMutation.mutate(selectedItems);
   };
 
   const clearItems = () => {
