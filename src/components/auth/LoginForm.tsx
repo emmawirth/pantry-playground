@@ -6,6 +6,7 @@ import { toast } from 'sonner';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
+import { InfoCircle } from 'lucide-react';
 
 const LoginForm: React.FC = () => {
   const [username, setUsername] = useState('');
@@ -46,12 +47,25 @@ const LoginForm: React.FC = () => {
 
   return (
     <form onSubmit={handleLogin} className="space-y-4">
+      <div className="rounded-md bg-blue-50 p-4 mb-4">
+        <div className="flex">
+          <div className="flex-shrink-0">
+            <InfoCircle className="h-5 w-5 text-blue-400" aria-hidden="true" />
+          </div>
+          <div className="ml-3">
+            <p className="text-sm text-blue-700">
+              Test account available: emmawirth4@gmail.com / Testing123!
+            </p>
+          </div>
+        </div>
+      </div>
+      
       <div className="space-y-2">
-        <Label htmlFor="username">Username</Label>
+        <Label htmlFor="username">Email</Label>
         <Input
           id="username"
-          type="text"
-          placeholder="Enter your username or email"
+          type="email"
+          placeholder="Enter your email"
           value={username}
           onChange={(e) => setUsername(e.target.value)}
           required
@@ -106,3 +120,4 @@ const LoginForm: React.FC = () => {
 };
 
 export default LoginForm;
+
