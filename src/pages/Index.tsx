@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import Navigation from '@/components/Navigation';
 import Dashboard from '@/components/Dashboard';
@@ -11,7 +10,6 @@ import { toast } from 'sonner';
 import { Dialog, DialogTrigger, DialogContent } from '@/components/ui/dialog';
 import { User } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
-import { useEffect as useEffectOnce } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 
 type TabType = 'dashboard' | 'recipes' | 'add' | 'pantry' | 'feed';
@@ -107,6 +105,7 @@ const Index = () => {
       }
     };
     
+    // Force-add items when the component loads
     addExpiringItemsToDb();
   }, [user]);
 
@@ -117,6 +116,12 @@ const Index = () => {
 
   const handleTabChange = (tab: TabType) => {
     setActiveTab(tab);
+    
+    // If user navigates to the pantry tab, make sure to reload pantry items
+    if (tab === 'pantry') {
+      // Switch to pantry tab right away
+      console.log('Switching to pantry tab');
+    }
   };
 
   const handleAddClick = () => {

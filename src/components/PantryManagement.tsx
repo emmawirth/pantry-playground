@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Search, MapPin, Info, ArrowDown, ArrowUp, Trash2, Filter, Check } from 'lucide-react';
 import PantryItem from './PantryItem';
@@ -46,15 +45,16 @@ const PantryManagement: React.FC<PantryManagementProps> = ({ pantryItems, setPan
   const { user } = useAuth();
   const queryClient = useQueryClient();
   
-  // Fetch pantry items from Supabase
   const { data: supabaseItems, isLoading } = useQuery({
     queryKey: ['pantryItems', user?.id],
     queryFn: async () => {
       if (!user) return [];
       
+      console.log('Fetching pantry items for user:', user.id);
       const { data, error } = await supabase
         .from('pantry_items')
         .select('*')
+        .eq('user_id', user.id)
         .order('created_at', { ascending: false });
       
       if (error) {
@@ -63,7 +63,8 @@ const PantryManagement: React.FC<PantryManagementProps> = ({ pantryItems, setPan
         return [];
       }
       
-      // Transform the data to match our PantryItemType
+      console.log('Fetched pantry items:', data);
+      
       return data.map(item => ({
         id: item.id,
         name: item.name,
@@ -75,10 +76,11 @@ const PantryManagement: React.FC<PantryManagementProps> = ({ pantryItems, setPan
         selected: false
       }));
     },
-    enabled: !!user
+    enabled: !!user,
+    staleTime: 5000,
+    refetchOnWindowFocus: true
   });
   
-  // Delete item mutation
   const deleteItemMutation = useMutation({
     mutationFn: async (id: string) => {
       if (!user) return;
@@ -102,9 +104,9 @@ const PantryManagement: React.FC<PantryManagementProps> = ({ pantryItems, setPan
     }
   });
   
-  // Update local pantry items when Supabase data changes
   useEffect(() => {
     if (supabaseItems) {
+      console.log('Updating pantry items with:', supabaseItems);
       setPantryItems(supabaseItems);
     }
   }, [supabaseItems, setPantryItems]);
@@ -131,17 +133,14 @@ const PantryManagement: React.FC<PantryManagementProps> = ({ pantryItems, setPan
       return;
     }
     
-    // Simulate API call for recipe suggestions
     toast.success('Finding recipes for you', {
       description: `Using ${selectedItems.length} selected ingredients`,
     });
     
-    // Show the recipe suggestions modal
     setShowRecipeSuggestionsModal(true);
   };
   
   const handleOpenDonateModal = () => {
-    // Filter items that expire within a week
     const oneWeekFromNow = new Date();
     oneWeekFromNow.setDate(oneWeekFromNow.getDate() + 7);
     
@@ -188,7 +187,6 @@ const PantryManagement: React.FC<PantryManagementProps> = ({ pantryItems, setPan
       return;
     }
     
-    // Simulate API call to find nearby food banks
     setFoodBanks([
       { id: 1, name: 'Community Food Bank', address: '123 Main St, Anytown, USA', distance: '1.2 miles' },
       { id: 2, name: 'Hope Food Pantry', address: '456 Oak Ave, Anytown, USA', distance: '2.5 miles' },
@@ -200,7 +198,6 @@ const PantryManagement: React.FC<PantryManagementProps> = ({ pantryItems, setPan
     let newDirection: SortDirection = 'asc';
     
     if (sortConfig.type === type) {
-      // Toggle direction if same type
       if (sortConfig.direction === 'asc') {
         newDirection = 'desc';
       } else if (sortConfig.direction === 'desc') {
@@ -211,7 +208,6 @@ const PantryManagement: React.FC<PantryManagementProps> = ({ pantryItems, setPan
     setSortConfig({ type, direction: newDirection });
   };
   
-  // Sort logic for pantry items
   const getSortedItems = () => {
     if (sortConfig.direction === 'none') {
       return [...pantryItems];
@@ -231,7 +227,6 @@ const PantryManagement: React.FC<PantryManagementProps> = ({ pantryItems, setPan
     });
   };
   
-  // Filter and sort items
   const filteredItems = getSortedItems().filter(item => 
     item.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
     item.brand.toLowerCase().includes(searchQuery.toLowerCase())
@@ -285,7 +280,6 @@ const PantryManagement: React.FC<PantryManagementProps> = ({ pantryItems, setPan
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" size={18} />
         </div>
 
-        {/* Sort filters with labels */}
         <div className="flex items-center mb-4">
           <span className="text-sm text-muted-foreground mr-2">Filter items by:</span>
           <div className="flex space-x-2">
@@ -389,7 +383,6 @@ const PantryManagement: React.FC<PantryManagementProps> = ({ pantryItems, setPan
         </div>
       </div>
       
-      {/* Donate Items Modal */}
       <Dialog open={showDonateItemsModal} onOpenChange={setShowDonateItemsModal}>
         <DialogContent className="max-w-md">
           <DialogHeader>
@@ -440,7 +433,6 @@ const PantryManagement: React.FC<PantryManagementProps> = ({ pantryItems, setPan
         </DialogContent>
       </Dialog>
       
-      {/* Food Bank Modal */}
       <Dialog open={showFoodBankModal} onOpenChange={setShowFoodBankModal}>
         <DialogContent className="max-w-md">
           <DialogHeader>
@@ -491,7 +483,6 @@ const PantryManagement: React.FC<PantryManagementProps> = ({ pantryItems, setPan
         </DialogContent>
       </Dialog>
       
-      {/* Recipe Suggestions Modal */}
       <Dialog 
         open={showRecipeSuggestionsModal} 
         onOpenChange={setShowRecipeSuggestionsModal}
