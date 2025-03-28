@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { X, Scan, Receipt, Mic, PenSquare, Check, Trash2, Plus } from 'lucide-react';
 import { toast } from 'sonner';
@@ -35,33 +34,19 @@ const AddItemOverlay: React.FC<AddItemOverlayProps> = ({
         throw new Error('User not authenticated');
       }
 
-      // Generate random expiration dates and statuses for demo
-      const itemsWithExpirationInfo = items.map(item => {
-        // Generate expiration date (random future date)
-        const days = Math.floor(Math.random() * 30) + 15;
-        const date = new Date();
-        date.setDate(date.getDate() + days);
-        const expirationDate = `${date.getMonth() + 1}/${date.getDate()}/${date.getFullYear()}`;
-        
-        // Determine expiration status based on date
-        let expirationStatus: 'fresh' | 'expiring' | 'expired';
-        if (days > 14) {
-          expirationStatus = 'fresh';
-        } else if (days > 0) {
-          expirationStatus = 'expiring';
-        } else {
-          expirationStatus = 'expired';
-        }
-
-        return {
-          name: item.name,
-          brand: item.brand,
-          quantity: item.quantity,
-          expiration_date: expirationDate,
-          expiration_status: expirationStatus,
-          user_id: userId
-        };
-      });
+      // Set expiration date to 2 days from now for testing
+      const date = new Date();
+      date.setDate(date.getDate() + 2);
+      const expirationDate = `${date.getMonth() + 1}/${date.getDate()}/${date.getFullYear()}`;
+      
+      const itemsWithExpirationInfo = items.map(item => ({
+        name: item.name,
+        brand: item.brand,
+        quantity: item.quantity,
+        expiration_date: expirationDate,
+        expiration_status: 'expiring' as const,
+        user_id: userId
+      }));
 
       const { error } = await supabase
         .from('pantry_items')
