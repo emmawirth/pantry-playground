@@ -7,6 +7,7 @@ import { Dialog, DialogContent, DialogTrigger, DialogHeader, DialogTitle } from 
 import { useNavigate } from 'react-router-dom';
 import { FilterOptions } from '@/pages/Index';
 import { toast } from 'sonner';
+import Badge from './ui-components/Badge';
 
 const recipesData = [
   {
@@ -17,6 +18,26 @@ const recipesData = [
     ingredientsAvailable: 80,
     dietaryLabels: ['Vegetarian', 'High Protein'],
     cookingLevel: 'Beginner' as const,
+    ingredients: [
+      '2 slices whole grain bread',
+      '1 ripe avocado',
+      '2 eggs',
+      '1 tbsp olive oil',
+      'Salt and pepper to taste',
+      'Red pepper flakes (optional)',
+      'Fresh herbs (optional)'
+    ],
+    instructions: [
+      'Toast the bread until golden and crispy.',
+      'While bread is toasting, heat olive oil in a non-stick pan over medium heat.',
+      'Crack eggs into the pan and cook to your preference (sunny-side up, over easy, etc.).',
+      'Cut the avocado in half, remove the pit, and scoop out the flesh into a bowl.',
+      'Mash the avocado with a fork and season with salt and pepper.',
+      'Spread the mashed avocado evenly on the toasted bread.',
+      'Top each slice with a cooked egg.',
+      'Garnish with red pepper flakes and fresh herbs if desired.',
+      'Serve immediately and enjoy!'
+    ]
   },
   {
     id: '2',
@@ -26,6 +47,21 @@ const recipesData = [
     ingredientsAvailable: 100,
     dietaryLabels: ['Vegan', 'Gluten-Free'],
     cookingLevel: 'Beginner' as const,
+    ingredients: [
+      '1 frozen banana',
+      '1 cup spinach',
+      '1/2 cup frozen mango',
+      '1/2 cup plant-based milk',
+      '1 tbsp chia seeds',
+      'Toppings: granola, sliced fruit, coconut flakes, etc.'
+    ],
+    instructions: [
+      'Add frozen banana, spinach, mango, and plant-based milk to a blender.',
+      'Blend until smooth, adding more liquid if necessary.',
+      'Pour the smoothie into a bowl.',
+      'Sprinkle chia seeds and your choice of toppings.',
+      'Serve immediately and enjoy!'
+    ]
   },
   {
     id: '3',
@@ -35,6 +71,31 @@ const recipesData = [
     ingredientsAvailable: 60,
     dietaryLabels: ['Vegan', 'High Fiber'],
     cookingLevel: 'Intermediate' as const,
+    ingredients: [
+      '2 medium sweet potatoes, cubed',
+      '1 can black beans, drained and rinsed',
+      '1 red onion, diced',
+      '2 cloves garlic, minced',
+      '1 tbsp olive oil',
+      '1 tsp cumin',
+      '1 tsp paprika',
+      '1/2 tsp chili powder',
+      'Salt and pepper to taste',
+      '8 small corn tortillas',
+      'Toppings: avocado, lime, cilantro, salsa'
+    ],
+    instructions: [
+      'Preheat oven to 425°F (220°C).',
+      'Toss sweet potato cubes with olive oil, cumin, paprika, chili powder, salt, and pepper.',
+      'Spread on a baking sheet and roast for 20-25 minutes until tender and slightly crispy.',
+      'In a pan, sauté diced onion until translucent, about 5 minutes.',
+      'Add minced garlic and cook for 30 seconds until fragrant.',
+      'Add black beans and cook until heated through, about 3 minutes.',
+      'Warm the tortillas in the oven or on a skillet.',
+      'Assemble tacos with sweet potatoes and black bean mixture.',
+      'Top with avocado, lime juice, cilantro, and salsa as desired.',
+      'Serve immediately and enjoy!'
+    ]
   },
   {
     id: '4',
@@ -44,6 +105,26 @@ const recipesData = [
     ingredientsAvailable: 70,
     dietaryLabels: ['Keto', 'High Protein'],
     cookingLevel: 'Intermediate' as const,
+    ingredients: [
+      '4 salmon fillets (about 6 oz each)',
+      '3 tbsp olive oil',
+      '3 cloves garlic, minced',
+      '1 lemon, zested and juiced',
+      '2 tbsp fresh dill, chopped',
+      'Salt and pepper to taste',
+      '1 tbsp butter'
+    ],
+    instructions: [
+      'Preheat oven to 375°F (190°C).',
+      'In a small bowl, mix olive oil, minced garlic, lemon zest, lemon juice, and dill.',
+      'Place salmon fillets on a baking sheet lined with parchment paper.',
+      'Season with salt and pepper.',
+      'Pour the lemon-garlic mixture over the salmon fillets.',
+      'Top each fillet with a small piece of butter.',
+      'Bake for 15-18 minutes, until salmon is opaque and flakes easily with a fork.',
+      'Garnish with additional fresh dill and lemon slices if desired.',
+      'Serve immediately with your favorite side dishes and enjoy!'
+    ]
   },
   {
     id: '5',
@@ -53,6 +134,30 @@ const recipesData = [
     ingredientsAvailable: 90,
     dietaryLabels: ['Vegan', 'Low Calorie'],
     cookingLevel: 'Beginner' as const,
+    ingredients: [
+      '2 cups mixed vegetables (bell peppers, broccoli, carrots, snap peas)',
+      '1 block tofu, cubed and pressed',
+      '2 tbsp vegetable oil',
+      '3 cloves garlic, minced',
+      '1 tbsp ginger, minced',
+      '3 tbsp soy sauce',
+      '1 tbsp sesame oil',
+      '1 tbsp rice vinegar',
+      '1 tsp brown sugar',
+      'Red pepper flakes to taste',
+      'Sesame seeds for garnish'
+    ],
+    instructions: [
+      'In a small bowl, whisk together soy sauce, sesame oil, rice vinegar, and brown sugar. Set aside.',
+      'Heat vegetable oil in a large wok or skillet over high heat.',
+      'Add tofu and cook until golden brown on all sides, about 5 minutes. Remove and set aside.',
+      'Add garlic and ginger to the pan and stir for 30 seconds until fragrant.',
+      'Add vegetables and stir-fry for 4-5 minutes until crisp-tender.',
+      'Return tofu to the pan and pour sauce over everything.',
+      'Stir to coat and cook for another 1-2 minutes.',
+      'Sprinkle with red pepper flakes and sesame seeds.',
+      'Serve hot over rice or noodles and enjoy!'
+    ]
   },
   {
     id: '6',
@@ -62,6 +167,31 @@ const recipesData = [
     ingredientsAvailable: 75,
     dietaryLabels: ['Gluten-Free', 'Vegan'],
     cookingLevel: 'Beginner' as const,
+    ingredients: [
+      '1 cup quinoa, rinsed',
+      '2 cups water or vegetable broth',
+      '1 cucumber, diced',
+      '1 bell pepper, diced',
+      '1/4 red onion, finely diced',
+      '1/2 cup cherry tomatoes, halved',
+      '1/4 cup fresh herbs (parsley, mint, or cilantro), chopped',
+      '3 tbsp olive oil',
+      '2 tbsp lemon juice',
+      '1 tsp honey or maple syrup',
+      'Salt and pepper to taste',
+      'Optional: crumbled feta cheese, olives, avocado'
+    ],
+    instructions: [
+      'Bring water or broth to a boil in a medium saucepan.',
+      'Add quinoa, reduce heat to low, cover and simmer for 15 minutes.',
+      'Remove from heat and let stand, covered, for 5 minutes.',
+      'Fluff with a fork and transfer to a large bowl to cool.',
+      'In a small bowl, whisk together olive oil, lemon juice, honey, salt, and pepper.',
+      'Add diced vegetables and herbs to the cooled quinoa.',
+      'Pour dressing over the salad and toss to combine.',
+      'Add optional toppings if desired.',
+      'Serve chilled or at room temperature and enjoy!'
+    ]
   },
   {
     id: '7',
@@ -71,6 +201,31 @@ const recipesData = [
     ingredientsAvailable: 85,
     dietaryLabels: ['Vegetarian', 'Gluten-Free'],
     cookingLevel: 'Intermediate' as const,
+    ingredients: [
+      '1 1/2 cups Arborio rice',
+      '4 cups vegetable broth, warmed',
+      '1/2 cup dry white wine',
+      '8 oz mushrooms, sliced',
+      '1 small onion, finely diced',
+      '2 cloves garlic, minced',
+      '3 tbsp butter, divided',
+      '2 tbsp olive oil',
+      '1/2 cup grated Parmesan cheese',
+      '2 tbsp fresh thyme leaves',
+      'Salt and pepper to taste'
+    ],
+    instructions: [
+      'In a large skillet, heat 1 tbsp butter and olive oil over medium heat.',
+      'Add mushrooms and cook until browned, about 5 minutes. Remove and set aside.',
+      'In the same pan, add 1 tbsp butter, onion, and garlic. Cook until soft, about 3 minutes.',
+      'Add Arborio rice and stir to coat in butter and oil, cooking for 1-2 minutes.',
+      'Pour in wine and stir until absorbed.',
+      'Add warm broth one ladle at a time, stirring constantly and waiting until liquid is absorbed before adding more.',
+      'Continue until rice is creamy and al dente, about 20-25 minutes.',
+      'Stir in cooked mushrooms, remaining butter, Parmesan cheese, and thyme.',
+      'Season with salt and pepper to taste.',
+      'Serve immediately and enjoy!'
+    ]
   },
   {
     id: '8',
@@ -80,6 +235,33 @@ const recipesData = [
     ingredientsAvailable: 80,
     dietaryLabels: ['High Protein', 'Low Carb'],
     cookingLevel: 'Beginner' as const,
+    ingredients: [
+      '1 lb chicken breast, sliced into strips',
+      '2 bell peppers, sliced',
+      '1 large onion, sliced',
+      '2 tbsp olive oil',
+      '2 cloves garlic, minced',
+      '1 tbsp chili powder',
+      '1 tsp cumin',
+      '1 tsp paprika',
+      '1/2 tsp oregano',
+      'Salt and pepper to taste',
+      '8 small flour tortillas',
+      'Toppings: sour cream, guacamole, salsa, lime wedges, cilantro'
+    ],
+    instructions: [
+      'In a bowl, mix chili powder, cumin, paprika, oregano, salt, and pepper.',
+      'Toss chicken strips with half of the spice mixture.',
+      'Heat 1 tbsp olive oil in a large skillet over medium-high heat.',
+      'Add chicken and cook until no longer pink, about 5-7 minutes. Remove from pan.',
+      'Add remaining oil to the pan, then add onions and peppers.',
+      'Cook until vegetables are tender-crisp, about 5 minutes.',
+      'Return chicken to the pan, add garlic and remaining spices.',
+      'Stir to combine and cook for an additional 2 minutes.',
+      'Warm tortillas according to package directions.',
+      'Serve chicken and vegetable mixture with warm tortillas and desired toppings.',
+      'Enjoy!'
+    ]
   },
   {
     id: '9',
@@ -89,6 +271,29 @@ const recipesData = [
     ingredientsAvailable: 70,
     dietaryLabels: ['Vegetarian', 'Mediterranean'],
     cookingLevel: 'Intermediate' as const,
+    ingredients: [
+      '12 oz pasta (penne or fusilli)',
+      '1 cup cherry tomatoes, halved',
+      '1/2 cup Kalamata olives, pitted and halved',
+      '1 bell pepper, diced',
+      '1/2 red onion, thinly sliced',
+      '1/2 cup feta cheese, crumbled',
+      '1/4 cup fresh basil, chopped',
+      '3 tbsp olive oil',
+      '2 tbsp red wine vinegar',
+      '2 cloves garlic, minced',
+      '1 tsp dried oregano',
+      'Salt and pepper to taste'
+    ],
+    instructions: [
+      'Cook pasta according to package directions. Drain and let cool slightly.',
+      'In a large bowl, combine tomatoes, olives, bell pepper, red onion, and basil.',
+      'In a small bowl, whisk together olive oil, red wine vinegar, garlic, oregano, salt, and pepper.',
+      'Add pasta to the vegetable mixture.',
+      'Pour dressing over pasta and vegetables, tossing to coat.',
+      'Sprinkle with crumbled feta cheese.',
+      'Serve warm or at room temperature and enjoy!'
+    ]
   },
   {
     id: '10',
@@ -98,7 +303,21 @@ const recipesData = [
     ingredientsAvailable: 100,
     dietaryLabels: ['High Protein', 'Low Sugar'],
     cookingLevel: 'Beginner' as const,
-  },
+    ingredients: [
+      '1 cup mixed berries (strawberries, blueberries, raspberries)',
+      '1 scoop protein powder (vanilla or unflavored)',
+      '1 cup almond milk or milk of choice',
+      '1/2 banana',
+      '1 tbsp nut butter',
+      '1 tsp honey or maple syrup (optional)',
+      'Ice cubes as needed'
+    ],
+    instructions: [
+      'Add all ingredients to a blender.',
+      'Blend until smooth, adding more liquid if needed.',
+      'Pour into a glass and enjoy immediately!'
+    ]
+  }
 ];
 
 interface DashboardProps {
@@ -466,7 +685,7 @@ const Dashboard: React.FC<DashboardProps> = ({
                 <div>
                   <h3 className="font-semibold text-lg mb-2">Ingredients</h3>
                   <ul className="list-disc list-inside space-y-1">
-                    {recipesData.find(r => r.id === selectedRecipe.id)?.ingredients?.map((ingredient, i) => (
+                    {selectedRecipe.ingredients?.map((ingredient, i) => (
                       <li key={i} className="text-sm">{ingredient}</li>
                     )) || <li className="text-sm text-muted-foreground">No ingredients available</li>}
                   </ul>
@@ -475,7 +694,7 @@ const Dashboard: React.FC<DashboardProps> = ({
                 <div>
                   <h3 className="font-semibold text-lg mb-2">Instructions</h3>
                   <ol className="space-y-3">
-                    {recipesData.find(r => r.id === selectedRecipe.id)?.instructions?.map((instruction, i) => (
+                    {selectedRecipe.instructions?.map((instruction, i) => (
                       <li key={i} className="bg-gray-50 p-3 rounded-lg border-l-4 border-pantry-green">
                         <span className="font-medium block text-pantry-green mb-1">Step {i+1}</span>
                         <span className="text-sm">{instruction}</span>
