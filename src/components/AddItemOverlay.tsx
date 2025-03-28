@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react';
-import { X, Scan, Receipt, Mic, PenSquare, Check, Trash2 } from 'lucide-react';
+import { X, Scan, Receipt, Mic, PenSquare, Check, Trash2, Plus } from 'lucide-react';
 import { toast } from 'sonner';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';

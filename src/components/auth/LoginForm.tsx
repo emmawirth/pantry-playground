@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
@@ -6,7 +5,7 @@ import { toast } from 'sonner';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
-import { InfoCircle } from 'lucide-react';
+import { Info } from 'lucide-react';
 
 const LoginForm: React.FC = () => {
   const [username, setUsername] = useState('');
@@ -50,7 +49,7 @@ const LoginForm: React.FC = () => {
       <div className="rounded-md bg-blue-50 p-4 mb-4">
         <div className="flex">
           <div className="flex-shrink-0">
-            <InfoCircle className="h-5 w-5 text-blue-400" aria-hidden="true" />
+            <Info className="h-5 w-5 text-blue-400" aria-hidden="true" />
           </div>
           <div className="ml-3">
             <p className="text-sm text-blue-700">
@@ -120,4 +119,3 @@ const LoginForm: React.FC = () => {
 };
 
 export default LoginForm;
-
