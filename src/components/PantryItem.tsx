@@ -59,7 +59,6 @@ const PantryItem: React.FC<PantryItemProps> = ({
               size={24} 
               className={cn(
                 expirationStatus === 'fresh' && "text-pantry-green",
-                expirationStatus === 'expiring' && "text-pantry-warning",
                 expirationStatus === 'expired' && "text-pantry-expired",
               )} 
             />
