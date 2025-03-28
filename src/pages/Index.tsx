@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import Navigation from '@/components/Navigation';
 import Dashboard from '@/components/Dashboard';
@@ -49,7 +50,7 @@ const Index = () => {
 
   // Add some expiring items when the component first loads
   useEffect(() => {
-    const addExpiringItemsToDb = async () => {
+    const addPantryItemsToDb = async () => {
       if (!user?.id) return;
       
       // Check if we've already added items
@@ -58,21 +59,38 @@ const Index = () => {
         .select('*')
         .eq('user_id', user.id);
       
-      // Only add sample expiring items if the user has fewer than 3 items
-      if (existingItems && existingItems.length > 3) return;
+      // Only add sample items if the user has fewer than 3 items
+      if (existingItems && existingItems.length > 13) return;
       
-      // Calculate expiration date (3 days from now)
-      const expirationDate = new Date();
-      expirationDate.setDate(expirationDate.getDate() + 3);
-      const formattedDate = `${expirationDate.getMonth() + 1}/${expirationDate.getDate()}/${expirationDate.getFullYear()}`;
+      // Calculate expiration dates
+      const threeDaysFromNow = new Date();
+      threeDaysFromNow.setDate(threeDaysFromNow.getDate() + 3);
+      const threeDaysFormatted = `${threeDaysFromNow.getMonth() + 1}/${threeDaysFromNow.getDate()}/${threeDaysFromNow.getFullYear()}`;
       
-      // Create items that will expire in 3 days
-      const expiringItems = [
+      const fiveDaysFromNow = new Date();
+      fiveDaysFromNow.setDate(fiveDaysFromNow.getDate() + 5);
+      const fiveDaysFormatted = `${fiveDaysFromNow.getMonth() + 1}/${fiveDaysFromNow.getDate()}/${fiveDaysFromNow.getFullYear()}`;
+      
+      const sixDaysFromNow = new Date();
+      sixDaysFromNow.setDate(sixDaysFromNow.getDate() + 6);
+      const sixDaysFormatted = `${sixDaysFromNow.getMonth() + 1}/${sixDaysFromNow.getDate()}/${sixDaysFromNow.getFullYear()}`;
+      
+      const tenDaysFromNow = new Date();
+      tenDaysFromNow.setDate(tenDaysFromNow.getDate() + 10);
+      const tenDaysFormatted = `${tenDaysFromNow.getMonth() + 1}/${tenDaysFromNow.getDate()}/${tenDaysFromNow.getFullYear()}`;
+      
+      const twentyDaysFromNow = new Date();
+      twentyDaysFromNow.setDate(twentyDaysFromNow.getDate() + 20);
+      const twentyDaysFormatted = `${twentyDaysFromNow.getMonth() + 1}/${twentyDaysFromNow.getDate()}/${twentyDaysFromNow.getFullYear()}`;
+      
+      // Create variety of pantry items (some expiring soon, some fresh)
+      const pantryItems = [
+        // Expiring items (within a week)
         {
           name: 'Fresh Milk',
           brand: 'Organic Valley',
           quantity: '1 gallon',
-          expiration_date: formattedDate,
+          expiration_date: threeDaysFormatted,
           expiration_status: 'expiring',
           user_id: user.id
         },
@@ -80,7 +98,7 @@ const Index = () => {
           name: 'Strawberries',
           brand: 'Driscoll\'s',
           quantity: '16 oz package',
-          expiration_date: formattedDate,
+          expiration_date: threeDaysFormatted,
           expiration_status: 'expiring',
           user_id: user.id
         },
@@ -88,25 +106,108 @@ const Index = () => {
           name: 'Ground Beef',
           brand: 'Certified Angus',
           quantity: '1 lb package',
-          expiration_date: formattedDate,
+          expiration_date: threeDaysFormatted,
           expiration_status: 'expiring',
+          user_id: user.id
+        },
+        {
+          name: 'Yogurt',
+          brand: 'Chobani',
+          quantity: '32 oz container',
+          expiration_date: fiveDaysFormatted,
+          expiration_status: 'expiring',
+          user_id: user.id
+        },
+        {
+          name: 'Fresh Spinach',
+          brand: 'Earthbound Farm',
+          quantity: '5 oz bag',
+          expiration_date: fiveDaysFormatted,
+          expiration_status: 'expiring',
+          user_id: user.id
+        },
+        {
+          name: 'Chicken Breasts',
+          brand: 'Perdue',
+          quantity: '1.5 lbs',
+          expiration_date: sixDaysFormatted,
+          expiration_status: 'expiring',
+          user_id: user.id
+        },
+        // Fresh items
+        {
+          name: 'Eggs',
+          brand: 'Happy Hens',
+          quantity: '12 count',
+          expiration_date: tenDaysFormatted,
+          expiration_status: 'fresh',
+          user_id: user.id
+        },
+        {
+          name: 'Cheddar Cheese',
+          brand: 'Tillamook',
+          quantity: '8 oz block',
+          expiration_date: tenDaysFormatted,
+          expiration_status: 'fresh',
+          user_id: user.id
+        },
+        {
+          name: 'Butter',
+          brand: 'Kerrygold',
+          quantity: '8 oz',
+          expiration_date: tenDaysFormatted,
+          expiration_status: 'fresh',
+          user_id: user.id
+        },
+        {
+          name: 'Carrots',
+          brand: 'Organic',
+          quantity: '1 lb bag',
+          expiration_date: tenDaysFormatted,
+          expiration_status: 'fresh',
+          user_id: user.id
+        },
+        {
+          name: 'Potatoes',
+          brand: 'Russet',
+          quantity: '5 lb bag',
+          expiration_date: twentyDaysFormatted,
+          expiration_status: 'fresh',
+          user_id: user.id
+        },
+        {
+          name: 'Onions',
+          brand: 'Sweet Vidalia',
+          quantity: '3 lb bag',
+          expiration_date: twentyDaysFormatted,
+          expiration_status: 'fresh',
+          user_id: user.id
+        },
+        {
+          name: 'Pasta',
+          brand: 'Barilla',
+          quantity: '16 oz box',
+          expiration_date: twentyDaysFormatted,
+          expiration_status: 'fresh',
           user_id: user.id
         }
       ];
       
       const { error } = await supabase
         .from('pantry_items')
-        .insert(expiringItems);
+        .insert(pantryItems);
       
       if (error) {
-        console.error('Error adding expiring items:', error);
+        console.error('Error adding pantry items:', error);
+        toast.error('Failed to add pantry items');
       } else {
-        toast.success('Added some items that will expire soon');
+        toast.success('Added variety of pantry items to your inventory');
+        console.log('Successfully added pantry items to database');
       }
     };
     
     // Force-add items when the component loads
-    addExpiringItemsToDb();
+    addPantryItemsToDb();
   }, [user]);
 
   // Save filter preferences to localStorage whenever they change

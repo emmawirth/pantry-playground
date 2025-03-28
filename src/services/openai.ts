@@ -40,80 +40,90 @@ const getOpenAIClient = () => {
 // Mock recipes to use as fallback
 const mockRecipes: RecipeSuggestion[] = [
   {
-    title: "Chicken Stir-Fry",
-    description: "A quick and easy stir-fry using chicken and vegetables from your pantry.",
+    title: "Berry Breakfast Parfait",
+    description: "A delicious and nutritious layered breakfast parfait with fresh berries, yogurt, and granola.",
     ingredients: [
-      "2 chicken breasts, sliced",
-      "1 cup mixed vegetables",
-      "2 tbsp soy sauce",
-      "1 tbsp olive oil",
-      "2 cloves garlic, minced",
-      "1 tbsp ginger, grated",
-      "1 bell pepper, sliced",
-      "1 cup mushrooms, sliced"
+      "2 cups Greek yogurt",
+      "1 cup mixed berries (strawberries, blueberries, raspberries)",
+      "1/2 cup granola",
+      "2 tbsp honey or maple syrup",
+      "1 tbsp chia seeds",
+      "Fresh mint leaves for garnish (optional)"
     ],
     instructions: [
-      "Heat oil in a large pan over medium-high heat.",
-      "Add chicken and cook until browned, about 5 minutes.",
-      "Add garlic and ginger, cook for 1 minute until fragrant.",
-      "Add vegetables and stir-fry for 3-4 minutes until tender-crisp.",
-      "Add soy sauce and stir to combine.",
-      "Serve hot over rice if desired."
+      "In two serving glasses, create alternating layers starting with yogurt.",
+      "Add a layer of mixed berries.",
+      "Sprinkle some granola on top.",
+      "Repeat the layers until the glasses are filled.",
+      "Drizzle with honey or maple syrup.",
+      "Top with chia seeds and a few extra berries.",
+      "Garnish with fresh mint if desired.",
+      "Serve immediately or refrigerate for up to 4 hours."
+    ],
+    cookingTime: "10 minutes",
+    difficulty: "Beginner" as const,
+    dietaryLabels: ["Vegetarian", "Low Fat"]
+  },
+  {
+    title: "Mediterranean Chickpea Bowl",
+    description: "A flavorful Mediterranean bowl using chickpeas and fresh vegetables for a nutritious meal.",
+    ingredients: [
+      "2 cans chickpeas, drained and rinsed",
+      "1 cucumber, diced",
+      "1 pint cherry tomatoes, halved",
+      "1 red onion, thinly sliced",
+      "1/2 cup kalamata olives, pitted",
+      "1/4 cup fresh parsley, chopped",
+      "1/4 cup olive oil",
+      "2 tbsp lemon juice",
+      "1 tsp dried oregano",
+      "1/2 tsp cumin",
+      "Salt and pepper to taste",
+      "Optional: crumbled feta cheese"
+    ],
+    instructions: [
+      "In a large bowl, combine chickpeas, cucumber, tomatoes, red onion, and olives.",
+      "In a small bowl, whisk together olive oil, lemon juice, oregano, cumin, salt, and pepper.",
+      "Pour the dressing over the chickpea mixture and toss to combine.",
+      "Fold in the chopped parsley.",
+      "Let sit for at least 10 minutes to allow flavors to meld.",
+      "Serve in bowls and top with crumbled feta cheese if desired.",
+      "This dish can be served at room temperature or chilled."
     ],
     cookingTime: "25 minutes",
-    difficulty: "Beginner" as const,
-    dietaryLabels: ["High Protein"]
+    difficulty: "Intermediate" as const,
+    dietaryLabels: ["Vegan", "High Fiber"]
   },
   {
-    title: "Vegetable Fried Rice",
-    description: "A flavorful vegetarian fried rice using pantry staples.",
+    title: "Sheet Pan Honey Mustard Chicken",
+    description: "A simple yet delicious sheet pan dinner with honey mustard glazed chicken and roasted vegetables.",
     ingredients: [
-      "2 cups cooked rice",
-      "1 cup mixed vegetables",
-      "2 eggs, beaten",
-      "2 tbsp soy sauce",
-      "1 tbsp olive oil",
+      "6 chicken thighs, bone-in, skin-on",
+      "1 lb baby potatoes, halved",
+      "2 cups Brussels sprouts, trimmed and halved",
+      "2 large carrots, cut into 1-inch pieces",
+      "3 tbsp olive oil, divided",
+      "3 tbsp honey",
+      "2 tbsp Dijon mustard",
       "2 cloves garlic, minced",
-      "1 onion, diced",
-      "1 tbsp ginger, grated"
+      "1 tbsp fresh rosemary, chopped",
+      "1 lemon, juiced",
+      "Salt and pepper to taste"
     ],
     instructions: [
-      "Heat oil in a large pan or wok over medium-high heat.",
-      "Add onion, garlic, and ginger, cook until fragrant.",
-      "Add vegetables and stir-fry for 3-4 minutes.",
-      "Push ingredients to one side, add beaten eggs to empty space.",
-      "Scramble eggs, then mix with vegetables.",
-      "Add cooked rice and soy sauce, stir to combine.",
-      "Cook for 3-4 minutes until everything is heated through."
+      "Preheat oven to 425°F (220°C).",
+      "In a small bowl, mix 2 tbsp olive oil, honey, Dijon mustard, garlic, rosemary, and lemon juice.",
+      "Place chicken thighs in a large bowl and pour half of the honey-mustard sauce over them. Toss to coat.",
+      "In another bowl, toss potatoes, Brussels sprouts, and carrots with remaining 1 tbsp olive oil, salt, and pepper.",
+      "Arrange vegetables on a large baking sheet, leaving space for the chicken.",
+      "Place chicken thighs on the baking sheet, skin-side up.",
+      "Roast for 35-40 minutes, until chicken is golden and cooked through (internal temperature of 165°F).",
+      "Drizzle remaining sauce over the chicken and vegetables before serving.",
+      "Garnish with additional fresh herbs if desired."
     ],
-    cookingTime: "20 minutes",
+    cookingTime: "40 minutes",
     difficulty: "Beginner" as const,
-    dietaryLabels: ["Vegetarian"]
-  },
-  {
-    title: "Garlic Mushroom Pasta",
-    description: "A simple yet delicious pasta dish featuring garlic and mushrooms.",
-    ingredients: [
-      "8 oz pasta",
-      "2 cups mushrooms, sliced",
-      "4 cloves garlic, minced",
-      "2 tbsp olive oil",
-      "1 tbsp butter",
-      "Salt and pepper to taste",
-      "Fresh herbs (optional)"
-    ],
-    instructions: [
-      "Cook pasta according to package instructions.",
-      "While pasta cooks, heat oil and butter in a large pan.",
-      "Add garlic and cook for 1 minute until fragrant.",
-      "Add mushrooms and cook until browned and tender, about 5-7 minutes.",
-      "Season with salt and pepper.",
-      "Drain pasta and add to the pan with mushrooms.",
-      "Toss to combine and serve hot with fresh herbs if desired."
-    ],
-    cookingTime: "15 minutes",
-    difficulty: "Beginner" as const,
-    dietaryLabels: ["Vegetarian"]
+    dietaryLabels: ["High Protein", "Low Carb"]
   }
 ];
 
