@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { Heart } from 'lucide-react';
+import { Heart, Clock } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 type ExpirationStatus = 'fresh' | 'expiring' | 'expired';
@@ -49,14 +49,21 @@ const PantryItem: React.FC<PantryItemProps> = ({
         {image ? (
           <img src={image} alt={name} className="w-full h-full object-cover" />
         ) : (
-          <Heart 
-            size={24} 
-            className={cn(
-              expirationStatus === 'fresh' && "text-pantry-green",
-              expirationStatus === 'expiring' && "text-pantry-warning",
-              expirationStatus === 'expired' && "text-pantry-expired",
-            )} 
-          />
+          expirationStatus === 'expiring' ? (
+            <Clock 
+              size={24} 
+              className="text-pantry-warning"
+            />
+          ) : (
+            <Heart 
+              size={24} 
+              className={cn(
+                expirationStatus === 'fresh' && "text-pantry-green",
+                expirationStatus === 'expiring' && "text-pantry-warning",
+                expirationStatus === 'expired' && "text-pantry-expired",
+              )} 
+            />
+          )
         )}
       </div>
       
