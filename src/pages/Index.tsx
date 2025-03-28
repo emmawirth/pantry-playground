@@ -11,6 +11,8 @@ import { toast } from 'sonner';
 import { Dialog, DialogTrigger, DialogContent } from '@/components/ui/dialog';
 import { User } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
+import { useEffect as useEffectOnce } from 'react';
+import { supabase } from '@/integrations/supabase/client';
 
 type TabType = 'dashboard' | 'recipes' | 'add' | 'pantry' | 'feed';
 
@@ -46,6 +48,67 @@ const Index = () => {
       diet: 'No preference',
     };
   });
+
+  // Add some expiring items when the component first loads
+  useEffect(() => {
+    const addExpiringItemsToDb = async () => {
+      if (!user?.id) return;
+      
+      // Check if we've already added items
+      const { data: existingItems } = await supabase
+        .from('pantry_items')
+        .select('*')
+        .eq('user_id', user.id);
+      
+      // Only add sample expiring items if the user has fewer than 3 items
+      if (existingItems && existingItems.length > 3) return;
+      
+      // Calculate expiration date (3 days from now)
+      const expirationDate = new Date();
+      expirationDate.setDate(expirationDate.getDate() + 3);
+      const formattedDate = `${expirationDate.getMonth() + 1}/${expirationDate.getDate()}/${expirationDate.getFullYear()}`;
+      
+      // Create items that will expire in 3 days
+      const expiringItems = [
+        {
+          name: 'Fresh Milk',
+          brand: 'Organic Valley',
+          quantity: '1 gallon',
+          expiration_date: formattedDate,
+          expiration_status: 'expiring',
+          user_id: user.id
+        },
+        {
+          name: 'Strawberries',
+          brand: 'Driscoll\'s',
+          quantity: '16 oz package',
+          expiration_date: formattedDate,
+          expiration_status: 'expiring',
+          user_id: user.id
+        },
+        {
+          name: 'Ground Beef',
+          brand: 'Certified Angus',
+          quantity: '1 lb package',
+          expiration_date: formattedDate,
+          expiration_status: 'expiring',
+          user_id: user.id
+        }
+      ];
+      
+      const { error } = await supabase
+        .from('pantry_items')
+        .insert(expiringItems);
+      
+      if (error) {
+        console.error('Error adding expiring items:', error);
+      } else {
+        toast.success('Added some items that will expire soon');
+      }
+    };
+    
+    addExpiringItemsToDb();
+  }, [user]);
 
   // Save filter preferences to localStorage whenever they change
   useEffect(() => {
