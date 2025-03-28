@@ -297,7 +297,7 @@ const PantryManagement: React.FC<PantryManagementProps> = ({ pantryItems, setPan
                       quantity={item.quantity}
                       expirationDate={item.expirationDate}
                       expirationStatus={item.expirationStatus}
-                      onFindRecipes={() => handleItemSelection(item.id)}
+                      onSelect={() => handleItemSelection(item.id)}
                     />
                   </div>
                   <button 

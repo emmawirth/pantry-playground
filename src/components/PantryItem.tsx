@@ -15,6 +15,7 @@ interface PantryItemProps {
   image?: string;
   isSelected?: boolean;
   onSelect?: () => void;
+  onFindRecipes?: () => void;
 }
 
 const PantryItem: React.FC<PantryItemProps> = ({
@@ -27,6 +28,7 @@ const PantryItem: React.FC<PantryItemProps> = ({
   image,
   isSelected,
   onSelect,
+  onFindRecipes,
 }) => {
   return (
     <div 
@@ -34,7 +36,7 @@ const PantryItem: React.FC<PantryItemProps> = ({
         "pantry-card p-3 flex items-center space-x-3",
         isSelected && "border-pantry-green bg-pantry-green/5"
       )}
-      onClick={onSelect}
+      onClick={onSelect || onFindRecipes}
     >
       <div 
         className={cn(
