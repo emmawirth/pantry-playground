@@ -27,8 +27,6 @@ const AddItemOverlay: React.FC<AddItemOverlayProps> = ({
   const [isRecording, setIsRecording] = useState(false);
   const queryClient = useQueryClient();
 
-  if (!isOpen) return null;
-
   // Mutation to add items to Supabase
   const addItemsMutation = useMutation({
     mutationFn: async (items: { name: string; brand: string; quantity: string }[]) => {
@@ -84,6 +82,10 @@ const AddItemOverlay: React.FC<AddItemOverlayProps> = ({
       toast.error('Failed to add items to pantry');
     }
   });
+
+  if (!isOpen) {
+    return null;
+  }
 
   const handleMethodSelect = (method: InputMethod) => {
     setInputMethod(method);
@@ -347,7 +349,7 @@ const AddItemOverlay: React.FC<AddItemOverlayProps> = ({
             onClick={inputMethod ? () => setInputMethod(null) : onClose}
             className="p-2 rounded-full hover:bg-muted transition-colors"
           >
-            {inputMethod ? <X size={20} /> : <X size={20} />}
+            <X size={20} />
           </button>
         </div>
         

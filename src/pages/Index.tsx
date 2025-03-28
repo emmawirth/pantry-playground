@@ -11,7 +11,6 @@ import { toast } from 'sonner';
 import { Dialog, DialogTrigger, DialogContent } from '@/components/ui/dialog';
 import { User } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
 type TabType = 'dashboard' | 'recipes' | 'add' | 'pantry' | 'feed';
 
@@ -31,9 +30,6 @@ interface PantryItemType {
   image?: string;
   selected: boolean;
 }
-
-// Create QueryClient instance
-const queryClient = new QueryClient();
 
 const Index = () => {
   const { user } = useAuth();
@@ -99,9 +95,7 @@ const Index = () => {
         );
       case 'pantry':
         return (
-          <QueryClientProvider client={queryClient}>
-            <PantryManagement pantryItems={pantryItems} setPantryItems={setPantryItems} />
-          </QueryClientProvider>
+          <PantryManagement pantryItems={pantryItems} setPantryItems={setPantryItems} />
         );
       case 'feed':
         return <SocialFeed />;
@@ -143,13 +137,11 @@ const Index = () => {
         onAddClick={handleAddClick}
       />
       
-      <QueryClientProvider client={queryClient}>
-        <AddItemOverlay 
-          isOpen={isAddOverlayOpen}
-          onClose={() => setIsAddOverlayOpen(false)}
-          userId={user?.id}
-        />
-      </QueryClientProvider>
+      <AddItemOverlay 
+        isOpen={isAddOverlayOpen}
+        onClose={() => setIsAddOverlayOpen(false)}
+        userId={user?.id}
+      />
     </div>
   );
 };
