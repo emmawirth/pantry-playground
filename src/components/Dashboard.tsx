@@ -1,11 +1,12 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Search, ChevronRight, Filter, Sparkles, Heart, Clock, User } from 'lucide-react';
 import RecipeCard from './RecipeCard';
 import RecipeSuggestions from './RecipeSuggestions';
 import { useAuth } from '@/context/AuthContext';
 import { Dialog, DialogContent, DialogTrigger } from '@/components/ui/dialog';
 import { useNavigate } from 'react-router-dom';
+import { FilterOptions } from '@/pages/Index';
 
 const recipesData = [
   {
@@ -44,25 +45,80 @@ const recipesData = [
     dietaryLabels: ['Keto', 'High Protein'],
     cookingLevel: 'Intermediate' as const,
   },
+  {
+    id: '5',
+    title: 'Vegetable Stir Fry',
+    image: 'https://images.unsplash.com/photo-1512058564366-18510be2db19?ixlib=rb-4.0.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=800&q=80',
+    cookTime: 20,
+    ingredientsAvailable: 90,
+    dietaryLabels: ['Vegan', 'Low Calorie'],
+    cookingLevel: 'Beginner' as const,
+  },
+  {
+    id: '6',
+    title: 'Quinoa Salad',
+    image: 'https://images.unsplash.com/photo-1505576399279-565b52d4ac71?ixlib=rb-4.0.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=800&q=80',
+    cookTime: 15,
+    ingredientsAvailable: 75,
+    dietaryLabels: ['Gluten-Free', 'Vegan'],
+    cookingLevel: 'Beginner' as const,
+  },
+  {
+    id: '7',
+    title: 'Mushroom Risotto',
+    image: 'https://images.unsplash.com/photo-1476124369491-e7addf5db371?ixlib=rb-4.0.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=800&q=80',
+    cookTime: 35,
+    ingredientsAvailable: 85,
+    dietaryLabels: ['Vegetarian', 'Gluten-Free'],
+    cookingLevel: 'Intermediate' as const,
+  },
+  {
+    id: '8',
+    title: 'Chicken Fajitas',
+    image: 'https://images.unsplash.com/photo-1593030761757-71fae45fa0e7?ixlib=rb-4.0.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=800&q=80',
+    cookTime: 25,
+    ingredientsAvailable: 80,
+    dietaryLabels: ['High Protein', 'Low Carb'],
+    cookingLevel: 'Beginner' as const,
+  },
+  {
+    id: '9',
+    title: 'Mediterranean Pasta',
+    image: 'https://images.unsplash.com/photo-1563379926898-05f4575a45d8?ixlib=rb-4.0.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=800&q=80',
+    cookTime: 30,
+    ingredientsAvailable: 70,
+    dietaryLabels: ['Vegetarian', 'Mediterranean'],
+    cookingLevel: 'Intermediate' as const,
+  },
+  {
+    id: '10',
+    title: 'Berry Protein Smoothie',
+    image: 'https://images.unsplash.com/photo-1553530666-ba11a7da3888?ixlib=rb-4.0.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=800&q=80',
+    cookTime: 5,
+    ingredientsAvailable: 100,
+    dietaryLabels: ['High Protein', 'Low Sugar'],
+    cookingLevel: 'Beginner' as const,
+  },
 ];
 
-interface FilterOptions {
-  skill: 'Beginner' | 'Intermediate' | 'Expert' | null;
-  time: '0-20' | '20-40' | '40-60' | '60+' | null;
-  diet: string | null;
+interface DashboardProps {
+  favoriteRecipes: string[];
+  onToggleFavorite: (recipeId: string) => void;
+  filterOptions: FilterOptions;
+  onUpdateFilterOptions: (options: FilterOptions) => void;
 }
 
-const Dashboard: React.FC = () => {
+const Dashboard: React.FC<DashboardProps> = ({ 
+  favoriteRecipes, 
+  onToggleFavorite,
+  filterOptions,
+  onUpdateFilterOptions
+}) => {
   const { user, signOut } = useAuth();
   const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState('');
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [showFilters, setShowFilters] = useState(false);
-  const [filterOptions, setFilterOptions] = useState<FilterOptions>({
-    skill: null,
-    time: '20-40',
-    diet: 'No preference',
-  });
   
   const [pantryItems] = useState([
     'Chicken breast',
@@ -82,7 +138,47 @@ const Dashboard: React.FC = () => {
     navigate('/recipes');
   };
 
+  const toggleFavorite = (recipeId: string, event: React.MouseEvent) => {
+    event.stopPropagation();
+    onToggleFavorite(recipeId);
+  };
+
+  const handleFilterChange = (key: keyof FilterOptions, value: any) => {
+    onUpdateFilterOptions({
+      ...filterOptions,
+      [key]: value
+    });
+  };
+
   const firstName = user?.user_metadata?.first_name || 'Chef';
+
+  // Filter recipes based on search query and filter options
+  const filteredRecipes = recipesData.filter(recipe => {
+    // Filter by search query
+    const matchesSearch = recipe.title.toLowerCase().includes(searchQuery.toLowerCase());
+    
+    // Filter by cooking level if selected
+    const matchesSkill = !filterOptions.skill || recipe.cookingLevel === filterOptions.skill;
+    
+    // Filter by cooking time if selected
+    let matchesTime = true;
+    if (filterOptions.time) {
+      const [min, max] = filterOptions.time.split('-').map(Number);
+      if (max) {
+        matchesTime = recipe.cookTime >= min && recipe.cookTime <= max;
+      } else {
+        // Handle the '60+' case
+        matchesTime = recipe.cookTime >= 60;
+      }
+    }
+    
+    // Filter by dietary preference if selected
+    const matchesDiet = !filterOptions.diet || 
+                        filterOptions.diet === 'No preference' || 
+                        recipe.dietaryLabels.includes(filterOptions.diet);
+    
+    return matchesSearch && matchesSkill && matchesTime && matchesDiet;
+  });
 
   return (
     <div className="pb-24">
@@ -145,10 +241,7 @@ const Dashboard: React.FC = () => {
                     {['Beginner', 'Intermediate', 'Expert'].map((level) => (
                       <button
                         key={level}
-                        onClick={() => setFilterOptions({
-                          ...filterOptions,
-                          skill: level as any,
-                        })}
+                        onClick={() => handleFilterChange('skill', level as any)}
                         className={`text-xs px-3 py-1 rounded-full ${
                           filterOptions.skill === level
                             ? 'bg-pantry-green text-white'
@@ -172,10 +265,7 @@ const Dashboard: React.FC = () => {
                     ].map((option) => (
                       <button
                         key={option.id}
-                        onClick={() => setFilterOptions({
-                          ...filterOptions,
-                          time: option.id as any,
-                        })}
+                        onClick={() => handleFilterChange('time', option.id as any)}
                         className={`text-xs px-3 py-1 rounded-full ${
                           filterOptions.time === option.id
                             ? 'bg-pantry-green text-white'
@@ -201,10 +291,7 @@ const Dashboard: React.FC = () => {
                     ].map((diet) => (
                       <button
                         key={diet}
-                        onClick={() => setFilterOptions({
-                          ...filterOptions,
-                          diet: diet,
-                        })}
+                        onClick={() => handleFilterChange('diet', diet)}
                         className={`text-xs px-3 py-1 rounded-full ${
                           filterOptions.diet === diet
                             ? 'bg-pantry-green text-white'
@@ -241,12 +328,22 @@ const Dashboard: React.FC = () => {
         </div>
         
         <div className="flex space-x-4 overflow-x-auto pb-4 scrollbar-none -mx-4 px-4">
-          {recipesData.map((recipe) => (
-            <div className="w-60 flex-shrink-0" key={recipe.id}>
+          {recipesData.slice(0, 5).map((recipe) => (
+            <div className="w-60 flex-shrink-0 relative" key={recipe.id}>
               <RecipeCard 
                 {...recipe}
                 onClick={() => handleRecipeClick(recipe.id)}
               />
+              <button
+                className={`absolute top-3 right-3 w-8 h-8 rounded-full flex items-center justify-center transition-colors ${
+                  favoriteRecipes.includes(recipe.id) 
+                    ? 'bg-red-500 text-white' 
+                    : 'bg-white/80 text-gray-600'
+                }`}
+                onClick={(e) => toggleFavorite(recipe.id, e)}
+              >
+                <Heart size={16} fill={favoriteRecipes.includes(recipe.id) ? "white" : "none"} />
+              </button>
             </div>
           ))}
         </div>
@@ -284,12 +381,23 @@ const Dashboard: React.FC = () => {
         </div>
         
         <div className="grid grid-cols-2 gap-4">
-          {recipesData.map((recipe) => (
-            <RecipeCard 
-              key={recipe.id}
-              {...recipe}
-              onClick={() => handleRecipeClick(recipe.id)}
-            />
+          {filteredRecipes.slice(0, 6).map((recipe) => (
+            <div key={recipe.id} className="relative">
+              <RecipeCard 
+                {...recipe}
+                onClick={() => handleRecipeClick(recipe.id)}
+              />
+              <button
+                className={`absolute top-3 right-3 w-8 h-8 rounded-full flex items-center justify-center transition-colors ${
+                  favoriteRecipes.includes(recipe.id) 
+                    ? 'bg-red-500 text-white' 
+                    : 'bg-white/80 text-gray-600'
+                }`}
+                onClick={(e) => toggleFavorite(recipe.id, e)}
+              >
+                <Heart size={16} fill={favoriteRecipes.includes(recipe.id) ? "white" : "none"} />
+              </button>
+            </div>
           ))}
         </div>
       </div>

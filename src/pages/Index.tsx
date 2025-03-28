@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Navigation from '@/components/Navigation';
 import Dashboard from '@/components/Dashboard';
 import RecipeHub from '@/components/RecipeHub';
@@ -13,6 +13,12 @@ import { User } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 
 type TabType = 'dashboard' | 'recipes' | 'add' | 'pantry' | 'feed';
+
+export interface FilterOptions {
+  skill: 'Beginner' | 'Intermediate' | 'Expert' | null;
+  time: '0-20' | '20-40' | '40-60' | '60+' | null;
+  diet: string | null;
+}
 
 const Index = () => {
   const { user } = useAuth();
@@ -31,6 +37,20 @@ const Index = () => {
     'Bell peppers',
     'Mushrooms'
   ]);
+  const [favoriteRecipes, setFavoriteRecipes] = useState<string[]>([]);
+  const [filterOptions, setFilterOptions] = useState<FilterOptions>(() => {
+    const savedFilters = localStorage.getItem('pantrypal_filters');
+    return savedFilters ? JSON.parse(savedFilters) : {
+      skill: null,
+      time: '20-40',
+      diet: 'No preference',
+    };
+  });
+
+  // Save filter preferences to localStorage whenever they change
+  useEffect(() => {
+    localStorage.setItem('pantrypal_filters', JSON.stringify(filterOptions));
+  }, [filterOptions]);
 
   const handleTabChange = (tab: TabType) => {
     setActiveTab(tab);
@@ -42,20 +62,52 @@ const Index = () => {
 
   const handleAddItems = (items: string[]) => {
     setPantryItems(prev => [...prev, ...items]);
+    toast.success(`${items.length} items added to pantry`);
+  };
+
+  const handleToggleFavorite = (recipeId: string) => {
+    setFavoriteRecipes(prev => 
+      prev.includes(recipeId) 
+        ? prev.filter(id => id !== recipeId) 
+        : [...prev, recipeId]
+    );
+  };
+
+  const updateFilterOptions = (newOptions: FilterOptions) => {
+    setFilterOptions(newOptions);
   };
 
   const renderActiveTab = () => {
     switch (activeTab) {
       case 'dashboard':
-        return <Dashboard />;
+        return (
+          <Dashboard 
+            favoriteRecipes={favoriteRecipes} 
+            onToggleFavorite={handleToggleFavorite}
+            filterOptions={filterOptions}
+            onUpdateFilterOptions={updateFilterOptions}
+          />
+        );
       case 'recipes':
-        return <RecipeHub />;
+        return (
+          <RecipeHub 
+            favoriteRecipes={favoriteRecipes} 
+            onToggleFavorite={handleToggleFavorite} 
+          />
+        );
       case 'pantry':
         return <PantryManagement />;
       case 'feed':
         return <SocialFeed />;
       default:
-        return <Dashboard />;
+        return (
+          <Dashboard 
+            favoriteRecipes={favoriteRecipes} 
+            onToggleFavorite={handleToggleFavorite}
+            filterOptions={filterOptions}
+            onUpdateFilterOptions={updateFilterOptions}
+          />
+        );
     }
   };
 
@@ -69,7 +121,10 @@ const Index = () => {
             </button>
           </DialogTrigger>
           <DialogContent className="max-w-full h-[90vh] p-0 sm:max-w-full">
-            <ProfileSettings />
+            <ProfileSettings 
+              favoriteRecipes={favoriteRecipes}
+              onToggleFavorite={handleToggleFavorite}
+            />
           </DialogContent>
         </Dialog>
       </div>

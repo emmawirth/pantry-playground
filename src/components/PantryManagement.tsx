@@ -1,11 +1,12 @@
 
 import React, { useState } from 'react';
-import { Search, MapPin, Info } from 'lucide-react';
+import { Search, MapPin, Info, Filter, Heart } from 'lucide-react';
 import PantryItem from './PantryItem';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Checkbox } from '@/components/ui/checkbox';
 
 interface PantryItemType {
   id: string;
@@ -76,6 +77,8 @@ const PantryManagement: React.FC = () => {
   const [showFoodBankModal, setShowFoodBankModal] = useState(false);
   const [zipCode, setZipCode] = useState('');
   const [foodBanks, setFoodBanks] = useState<any[]>([]);
+  const [showDonateItemsModal, setShowDonateItemsModal] = useState(false);
+  const [itemsToDonate, setItemsToDonate] = useState<PantryItemType[]>([]);
   
   const handleItemSelection = (id: string) => {
     setPantryItems(items => 
@@ -114,7 +117,45 @@ const PantryManagement: React.FC = () => {
     }, 2000);
   };
   
-  const handleDonate = (item: PantryItemType) => {
+  const handleOpenDonateModal = () => {
+    // Filter items that expire within a week
+    const oneWeekFromNow = new Date();
+    oneWeekFromNow.setDate(oneWeekFromNow.getDate() + 7);
+    
+    const expiringItems = pantryItems.filter(item => {
+      if (item.expirationStatus === 'expiring') {
+        const expiryDate = new Date(item.expirationDate);
+        return expiryDate <= oneWeekFromNow;
+      }
+      return false;
+    });
+    
+    if (expiringItems.length === 0) {
+      toast.info('No items expiring within a week to donate');
+      return;
+    }
+    
+    setItemsToDonate(expiringItems.map(item => ({ ...item, selected: false })));
+    setShowDonateItemsModal(true);
+  };
+  
+  const toggleDonatableItem = (id: string) => {
+    setItemsToDonate(items => 
+      items.map(item => 
+        item.id === id ? { ...item, selected: !item.selected } : item
+      )
+    );
+  };
+  
+  const handleDonateSelected = () => {
+    const selectedDonationItems = itemsToDonate.filter(item => item.selected);
+    
+    if (selectedDonationItems.length === 0) {
+      toast.error('Please select at least one item to donate');
+      return;
+    }
+    
+    setShowDonateItemsModal(false);
     setShowFoodBankModal(true);
   };
   
@@ -141,6 +182,8 @@ const PantryManagement: React.FC = () => {
     setPantryItems(items => items.map(item => ({ ...item, selected: false })));
   };
   
+  const expiringItemsCount = pantryItems.filter(item => item.expirationStatus === 'expiring').length;
+  
   return (
     <div className="pb-24">
       <div className="px-4 pt-12 pb-4">
@@ -152,9 +195,12 @@ const PantryManagement: React.FC = () => {
             placeholder="Search pantry items..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full pl-10 pr-4 py-3 bg-white rounded-xl border-none shadow-sm focus:ring-2 focus:ring-pantry-green/30 transition-all"
+            className="w-full pl-10 pr-14 py-3 bg-white rounded-xl border-none shadow-sm focus:ring-2 focus:ring-pantry-green/30 transition-all"
           />
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" size={18} />
+          <button className="absolute right-3 top-1/2 -translate-y-1/2 bg-pantry-green text-white p-1 rounded-lg">
+            <Filter size={16} />
+          </button>
         </div>
         
         {selectedCount > 0 && (
@@ -182,6 +228,24 @@ const PantryManagement: React.FC = () => {
           </div>
         )}
         
+        {expiringItemsCount > 0 && (
+          <div className="bg-amber-50 rounded-xl p-4 mb-6">
+            <div className="flex justify-between items-center">
+              <div>
+                <p className="font-medium text-amber-800">{expiringItemsCount} items expiring soon</p>
+                <p className="text-sm text-amber-700">Help reduce food waste by donating</p>
+              </div>
+              <Button 
+                onClick={handleOpenDonateModal}
+                size="sm"
+                className="bg-amber-500 hover:bg-amber-600 text-white"
+              >
+                Donate Now
+              </Button>
+            </div>
+          </div>
+        )}
+        
         <div className="space-y-3">
           {filteredItems.map(item => (
             <div 
@@ -200,20 +264,62 @@ const PantryManagement: React.FC = () => {
                     onFindRecipes={() => handleItemSelection(item.id)}
                   />
                 </div>
-                
-                {item.expirationStatus === 'expiring' && (
-                  <button
-                    onClick={() => handleDonate(item)}
-                    className="mr-3 px-2 py-1 bg-amber-100 text-amber-800 rounded-lg text-xs font-medium"
-                  >
-                    Donate Now
-                  </button>
-                )}
               </div>
             </div>
           ))}
         </div>
       </div>
+      
+      {/* Donate Items Modal */}
+      <Dialog open={showDonateItemsModal} onOpenChange={setShowDonateItemsModal}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>Select Items to Donate</DialogTitle>
+          </DialogHeader>
+          
+          <div className="space-y-4 py-2">
+            <p className="text-muted-foreground">
+              Choose items from your pantry that you'd like to donate. These items are expiring soon.
+            </p>
+            
+            <div className="space-y-2 max-h-60 overflow-y-auto">
+              {itemsToDonate.map(item => (
+                <div key={item.id} className="flex items-center space-x-3 p-3 rounded-lg border">
+                  <Checkbox 
+                    id={`donate-${item.id}`}
+                    checked={item.selected}
+                    onCheckedChange={() => toggleDonatableItem(item.id)}
+                    className="data-[state=checked]:bg-pantry-green"
+                  />
+                  <div className="flex-1">
+                    <label htmlFor={`donate-${item.id}`} className="flex flex-col cursor-pointer">
+                      <span className="font-medium">{item.name}</span>
+                      <div className="text-sm text-muted-foreground">
+                        {item.brand} • {item.quantity}
+                      </div>
+                      <div className="text-xs text-amber-600">
+                        Expires {item.expirationDate}
+                      </div>
+                    </label>
+                  </div>
+                </div>
+              ))}
+            </div>
+            
+            <div className="flex justify-end space-x-2 pt-4">
+              <Button variant="outline" onClick={() => setShowDonateItemsModal(false)}>
+                Cancel
+              </Button>
+              <Button 
+                onClick={handleDonateSelected}
+                className="bg-pantry-green hover:bg-pantry-green-dark"
+              >
+                Find Food Banks
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
       
       {/* Food Bank Modal */}
       <Dialog open={showFoodBankModal} onOpenChange={setShowFoodBankModal}>

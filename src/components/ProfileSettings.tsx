@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Heart, ChevronRight, User, LogOut } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 import { useNavigate } from 'react-router-dom';
@@ -11,7 +11,8 @@ const foodEmojis = [
   "🥑", "🍕", "🌮", "🍔", "🍟", "🍜", "🍣", "🍰", "🍩", "🍺", "☕️"
 ];
 
-const favoriteRecipes = [
+// This is shared with RecipeHub and Dashboard
+const recipesData = [
   {
     id: '1',
     title: 'Avocado & Egg Toast',
@@ -19,6 +20,15 @@ const favoriteRecipes = [
     cookTime: 15,
     ingredientsAvailable: 80,
     dietaryLabels: ['Vegetarian', 'High Protein'],
+    cookingLevel: 'Beginner' as const,
+  },
+  {
+    id: '2',
+    title: 'Green Smoothie Bowl',
+    image: 'https://images.unsplash.com/photo-1638437447450-bc255ecca70a?ixlib=rb-4.0.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=800&q=80',
+    cookTime: 10,
+    ingredientsAvailable: 100,
+    dietaryLabels: ['Vegan', 'Gluten-Free'],
     cookingLevel: 'Beginner' as const,
   },
   {
@@ -30,9 +40,77 @@ const favoriteRecipes = [
     dietaryLabels: ['Vegan', 'High Fiber'],
     cookingLevel: 'Intermediate' as const,
   },
+  {
+    id: '4',
+    title: 'Lemon Garlic Salmon',
+    image: 'https://images.unsplash.com/photo-1519708227418-c8fd9a32b7a2?ixlib=rb-4.0.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=800&q=80',
+    cookTime: 25,
+    ingredientsAvailable: 70,
+    dietaryLabels: ['Keto', 'High Protein'],
+    cookingLevel: 'Intermediate' as const,
+  },
+  {
+    id: '5',
+    title: 'Vegetable Stir Fry',
+    image: 'https://images.unsplash.com/photo-1512058564366-18510be2db19?ixlib=rb-4.0.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=800&q=80',
+    cookTime: 20,
+    ingredientsAvailable: 90,
+    dietaryLabels: ['Vegan', 'Low Calorie'],
+    cookingLevel: 'Beginner' as const,
+  },
+  {
+    id: '6',
+    title: 'Quinoa Salad',
+    image: 'https://images.unsplash.com/photo-1505576399279-565b52d4ac71?ixlib=rb-4.0.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=800&q=80',
+    cookTime: 15,
+    ingredientsAvailable: 75,
+    dietaryLabels: ['Gluten-Free', 'Vegan'],
+    cookingLevel: 'Beginner' as const,
+  },
+  {
+    id: '7',
+    title: 'Mushroom Risotto',
+    image: 'https://images.unsplash.com/photo-1476124369491-e7addf5db371?ixlib=rb-4.0.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=800&q=80',
+    cookTime: 35,
+    ingredientsAvailable: 85,
+    dietaryLabels: ['Vegetarian', 'Gluten-Free'],
+    cookingLevel: 'Intermediate' as const,
+  },
+  {
+    id: '8',
+    title: 'Chicken Fajitas',
+    image: 'https://images.unsplash.com/photo-1593030761757-71fae45fa0e7?ixlib=rb-4.0.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=800&q=80',
+    cookTime: 25,
+    ingredientsAvailable: 80,
+    dietaryLabels: ['High Protein', 'Low Carb'],
+    cookingLevel: 'Beginner' as const,
+  },
+  {
+    id: '9',
+    title: 'Mediterranean Pasta',
+    image: 'https://images.unsplash.com/photo-1563379926898-05f4575a45d8?ixlib=rb-4.0.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=800&q=80',
+    cookTime: 30,
+    ingredientsAvailable: 70,
+    dietaryLabels: ['Vegetarian', 'Mediterranean'],
+    cookingLevel: 'Intermediate' as const,
+  },
+  {
+    id: '10',
+    title: 'Berry Protein Smoothie',
+    image: 'https://images.unsplash.com/photo-1553530666-ba11a7da3888?ixlib=rb-4.0.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=800&q=80',
+    cookTime: 5,
+    ingredientsAvailable: 100,
+    dietaryLabels: ['High Protein', 'Low Sugar'],
+    cookingLevel: 'Beginner' as const,
+  },
 ];
 
-const ProfileSettings: React.FC = () => {
+interface ProfileSettingsProps {
+  favoriteRecipes: string[];
+  onToggleFavorite: (recipeId: string) => void;
+}
+
+const ProfileSettings: React.FC<ProfileSettingsProps> = ({ favoriteRecipes, onToggleFavorite }) => {
   const { user, signOut } = useAuth();
   const navigate = useNavigate();
   const [profileEmoji, setProfileEmoji] = useState<string>("👤");
@@ -46,6 +124,13 @@ const ProfileSettings: React.FC = () => {
   const selectEmoji = (emoji: string) => {
     setProfileEmoji(emoji);
     setShowEmojiPicker(false);
+  };
+
+  const favoriteRecipeItems = recipesData.filter(recipe => favoriteRecipes.includes(recipe.id));
+
+  const toggleFavorite = (recipeId: string, event: React.MouseEvent) => {
+    event.stopPropagation();
+    onToggleFavorite(recipeId);
   };
 
   return (
@@ -73,17 +158,24 @@ const ProfileSettings: React.FC = () => {
               Favorites
             </h2>
             
-            <div className="grid grid-cols-2 gap-4">
-              {favoriteRecipes.map((recipe) => (
-                <RecipeCard 
-                  key={recipe.id}
-                  {...recipe}
-                  onClick={() => {}}
-                />
-              ))}
-            </div>
-            
-            {favoriteRecipes.length === 0 && (
+            {favoriteRecipeItems.length > 0 ? (
+              <div className="grid grid-cols-2 gap-4">
+                {favoriteRecipeItems.map((recipe) => (
+                  <div key={recipe.id} className="relative">
+                    <RecipeCard 
+                      {...recipe}
+                      onClick={() => {}}
+                    />
+                    <button
+                      className="absolute top-3 right-3 w-8 h-8 rounded-full flex items-center justify-center bg-red-500 text-white"
+                      onClick={(e) => toggleFavorite(recipe.id, e)}
+                    >
+                      <Heart size={16} fill="white" />
+                    </button>
+                  </div>
+                ))}
+              </div>
+            ) : (
               <div className="text-center py-8 bg-gray-50 rounded-lg">
                 <p className="text-muted-foreground">No favorite recipes yet</p>
                 <p className="text-sm text-muted-foreground mt-1">

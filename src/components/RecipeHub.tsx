@@ -122,12 +122,208 @@ const recipesData = [
       'Serve immediately with your favorite side dishes and enjoy!'
     ]
   },
+  {
+    id: '5',
+    title: 'Vegetable Stir Fry',
+    image: 'https://images.unsplash.com/photo-1512058564366-18510be2db19?ixlib=rb-4.0.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=800&q=80',
+    cookTime: 20,
+    ingredientsAvailable: 90,
+    dietaryLabels: ['Vegan', 'Low Calorie'],
+    cookingLevel: 'Beginner' as const,
+    ingredients: [
+      '2 cups mixed vegetables (bell peppers, broccoli, carrots, snap peas)',
+      '1 block tofu, cubed and pressed',
+      '2 tbsp vegetable oil',
+      '3 cloves garlic, minced',
+      '1 tbsp ginger, minced',
+      '3 tbsp soy sauce',
+      '1 tbsp sesame oil',
+      '1 tbsp rice vinegar',
+      '1 tsp brown sugar',
+      'Red pepper flakes to taste',
+      'Sesame seeds for garnish'
+    ],
+    instructions: [
+      'In a small bowl, whisk together soy sauce, sesame oil, rice vinegar, and brown sugar. Set aside.',
+      'Heat vegetable oil in a large wok or skillet over high heat.',
+      'Add tofu and cook until golden brown on all sides, about 5 minutes. Remove and set aside.',
+      'Add garlic and ginger to the pan and stir for 30 seconds until fragrant.',
+      'Add vegetables and stir-fry for 4-5 minutes until crisp-tender.',
+      'Return tofu to the pan and pour sauce over everything.',
+      'Stir to coat and cook for another 1-2 minutes.',
+      'Sprinkle with red pepper flakes and sesame seeds.',
+      'Serve hot over rice or noodles and enjoy!'
+    ]
+  },
+  {
+    id: '6',
+    title: 'Quinoa Salad',
+    image: 'https://images.unsplash.com/photo-1505576399279-565b52d4ac71?ixlib=rb-4.0.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=800&q=80',
+    cookTime: 15,
+    ingredientsAvailable: 75,
+    dietaryLabels: ['Gluten-Free', 'Vegan'],
+    cookingLevel: 'Beginner' as const,
+    ingredients: [
+      '1 cup quinoa, rinsed',
+      '2 cups water or vegetable broth',
+      '1 cucumber, diced',
+      '1 bell pepper, diced',
+      '1/4 red onion, finely diced',
+      '1/2 cup cherry tomatoes, halved',
+      '1/4 cup fresh herbs (parsley, mint, or cilantro), chopped',
+      '3 tbsp olive oil',
+      '2 tbsp lemon juice',
+      '1 tsp honey or maple syrup',
+      'Salt and pepper to taste',
+      'Optional: crumbled feta cheese, olives, avocado'
+    ],
+    instructions: [
+      'Bring water or broth to a boil in a medium saucepan.',
+      'Add quinoa, reduce heat to low, cover and simmer for 15 minutes.',
+      'Remove from heat and let stand, covered, for 5 minutes.',
+      'Fluff with a fork and transfer to a large bowl to cool.',
+      'In a small bowl, whisk together olive oil, lemon juice, honey, salt, and pepper.',
+      'Add diced vegetables and herbs to the cooled quinoa.',
+      'Pour dressing over the salad and toss to combine.',
+      'Add optional toppings if desired.',
+      'Serve chilled or at room temperature and enjoy!'
+    ]
+  },
+  {
+    id: '7',
+    title: 'Mushroom Risotto',
+    image: 'https://images.unsplash.com/photo-1476124369491-e7addf5db371?ixlib=rb-4.0.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=800&q=80',
+    cookTime: 35,
+    ingredientsAvailable: 85,
+    dietaryLabels: ['Vegetarian', 'Gluten-Free'],
+    cookingLevel: 'Intermediate' as const,
+    ingredients: [
+      '1 1/2 cups Arborio rice',
+      '4 cups vegetable broth, warmed',
+      '1/2 cup dry white wine',
+      '8 oz mushrooms, sliced',
+      '1 small onion, finely diced',
+      '2 cloves garlic, minced',
+      '3 tbsp butter, divided',
+      '2 tbsp olive oil',
+      '1/2 cup grated Parmesan cheese',
+      '2 tbsp fresh thyme leaves',
+      'Salt and pepper to taste'
+    ],
+    instructions: [
+      'In a large skillet, heat 1 tbsp butter and olive oil over medium heat.',
+      'Add mushrooms and cook until browned, about 5 minutes. Remove and set aside.',
+      'In the same pan, add 1 tbsp butter, onion, and garlic. Cook until soft, about 3 minutes.',
+      'Add Arborio rice and stir to coat in butter and oil, cooking for 1-2 minutes.',
+      'Pour in wine and stir until absorbed.',
+      'Add warm broth one ladle at a time, stirring constantly and waiting until liquid is absorbed before adding more.',
+      'Continue until rice is creamy and al dente, about 20-25 minutes.',
+      'Stir in cooked mushrooms, remaining butter, Parmesan cheese, and thyme.',
+      'Season with salt and pepper to taste.',
+      'Serve immediately and enjoy!'
+    ]
+  },
+  {
+    id: '8',
+    title: 'Chicken Fajitas',
+    image: 'https://images.unsplash.com/photo-1593030761757-71fae45fa0e7?ixlib=rb-4.0.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=800&q=80',
+    cookTime: 25,
+    ingredientsAvailable: 80,
+    dietaryLabels: ['High Protein', 'Low Carb'],
+    cookingLevel: 'Beginner' as const,
+    ingredients: [
+      '1 lb chicken breast, sliced into strips',
+      '2 bell peppers, sliced',
+      '1 large onion, sliced',
+      '2 tbsp olive oil',
+      '2 cloves garlic, minced',
+      '1 tbsp chili powder',
+      '1 tsp cumin',
+      '1 tsp paprika',
+      '1/2 tsp oregano',
+      'Salt and pepper to taste',
+      '8 small flour tortillas',
+      'Toppings: sour cream, guacamole, salsa, lime wedges, cilantro'
+    ],
+    instructions: [
+      'In a bowl, mix chili powder, cumin, paprika, oregano, salt, and pepper.',
+      'Toss chicken strips with half of the spice mixture.',
+      'Heat 1 tbsp olive oil in a large skillet over medium-high heat.',
+      'Add chicken and cook until no longer pink, about 5-7 minutes. Remove from pan.',
+      'Add remaining oil to the pan, then add onions and peppers.',
+      'Cook until vegetables are tender-crisp, about 5 minutes.',
+      'Return chicken to the pan, add garlic and remaining spices.',
+      'Stir to combine and cook for an additional 2 minutes.',
+      'Warm tortillas according to package directions.',
+      'Serve chicken and vegetable mixture with warm tortillas and desired toppings.',
+      'Enjoy!'
+    ]
+  },
+  {
+    id: '9',
+    title: 'Mediterranean Pasta',
+    image: 'https://images.unsplash.com/photo-1563379926898-05f4575a45d8?ixlib=rb-4.0.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=800&q=80',
+    cookTime: 30,
+    ingredientsAvailable: 70,
+    dietaryLabels: ['Vegetarian', 'Mediterranean'],
+    cookingLevel: 'Intermediate' as const,
+    ingredients: [
+      '12 oz pasta (penne or fusilli)',
+      '1 cup cherry tomatoes, halved',
+      '1/2 cup Kalamata olives, pitted and halved',
+      '1 bell pepper, diced',
+      '1/2 red onion, thinly sliced',
+      '1/2 cup feta cheese, crumbled',
+      '1/4 cup fresh basil, chopped',
+      '3 tbsp olive oil',
+      '2 tbsp red wine vinegar',
+      '2 cloves garlic, minced',
+      '1 tsp dried oregano',
+      'Salt and pepper to taste'
+    ],
+    instructions: [
+      'Cook pasta according to package directions. Drain and let cool slightly.',
+      'In a large bowl, combine tomatoes, olives, bell pepper, red onion, and basil.',
+      'In a small bowl, whisk together olive oil, red wine vinegar, garlic, oregano, salt, and pepper.',
+      'Add pasta to the vegetable mixture.',
+      'Pour dressing over pasta and vegetables, tossing to coat.',
+      'Sprinkle with crumbled feta cheese.',
+      'Serve warm or at room temperature and enjoy!'
+    ]
+  },
+  {
+    id: '10',
+    title: 'Berry Protein Smoothie',
+    image: 'https://images.unsplash.com/photo-1553530666-ba11a7da3888?ixlib=rb-4.0.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=800&q=80',
+    cookTime: 5,
+    ingredientsAvailable: 100,
+    dietaryLabels: ['High Protein', 'Low Sugar'],
+    cookingLevel: 'Beginner' as const,
+    ingredients: [
+      '1 cup mixed berries (strawberries, blueberries, raspberries)',
+      '1 scoop protein powder (vanilla or unflavored)',
+      '1 cup almond milk or milk of choice',
+      '1/2 banana',
+      '1 tbsp nut butter',
+      '1 tsp honey or maple syrup (optional)',
+      'Ice cubes as needed'
+    ],
+    instructions: [
+      'Add all ingredients to a blender.',
+      'Blend until smooth, adding more liquid if needed.',
+      'Pour into a glass and enjoy immediately!'
+    ]
+  }
 ];
 
-const RecipeHub: React.FC = () => {
+interface RecipeHubProps {
+  favoriteRecipes: string[];
+  onToggleFavorite: (recipeId: string) => void;
+}
+
+const RecipeHub: React.FC<RecipeHubProps> = ({ favoriteRecipes, onToggleFavorite }) => {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedRecipe, setSelectedRecipe] = useState<(typeof recipesData)[0] | null>(null);
-  const [favoriteRecipes, setFavoriteRecipes] = useState<string[]>([]);
 
   const handleRecipeClick = (recipe: (typeof recipesData)[0]) => {
     setSelectedRecipe(recipe);
@@ -135,11 +331,7 @@ const RecipeHub: React.FC = () => {
 
   const toggleFavorite = (recipeId: string, event: React.MouseEvent) => {
     event.stopPropagation();
-    setFavoriteRecipes(prev => 
-      prev.includes(recipeId) 
-        ? prev.filter(id => id !== recipeId) 
-        : [...prev, recipeId]
-    );
+    onToggleFavorite(recipeId);
   };
 
   const filteredRecipes = recipesData.filter(recipe => 
