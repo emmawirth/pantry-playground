@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect } from 'react';
-import { Search, MapPin, Info, ArrowDown, ArrowUp, Trash2, Filter } from 'lucide-react';
+import { Search, MapPin, Info, ArrowDown, ArrowUp, Trash2, Filter, Check } from 'lucide-react';
 import PantryItem from './PantryItem';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
@@ -218,37 +218,40 @@ const PantryManagement: React.FC<PantryManagementProps> = ({ pantryItems, setPan
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" size={18} />
         </div>
 
-        {/* Sort filters */}
-        <div className="flex space-x-2 mb-4">
-          <Button 
-            variant="outline" 
-            size="sm" 
-            className="flex items-center gap-1.5" 
-            onClick={() => handleSort('name')}
-          >
-            Name
-            {sortConfig.type === 'name' && sortConfig.direction === 'asc' && (
-              <ArrowDown className="h-4 w-4" />
-            )}
-            {sortConfig.type === 'name' && sortConfig.direction === 'desc' && (
-              <ArrowUp className="h-4 w-4" />
-            )}
-          </Button>
-          
-          <Button 
-            variant="outline" 
-            size="sm" 
-            className="flex items-center gap-1.5" 
-            onClick={() => handleSort('date')}
-          >
-            Expiration
-            {sortConfig.type === 'date' && sortConfig.direction === 'asc' && (
-              <ArrowDown className="h-4 w-4" />
-            )}
-            {sortConfig.type === 'date' && sortConfig.direction === 'desc' && (
-              <ArrowUp className="h-4 w-4" />
-            )}
-          </Button>
+        {/* Sort filters with labels */}
+        <div className="flex items-center mb-4">
+          <span className="text-sm text-muted-foreground mr-2">Filter items by:</span>
+          <div className="flex space-x-2">
+            <Button 
+              variant="outline" 
+              size="sm" 
+              className="flex items-center gap-1.5" 
+              onClick={() => handleSort('name')}
+            >
+              Name
+              {sortConfig.type === 'name' && sortConfig.direction === 'asc' && (
+                <ArrowDown className="h-4 w-4" />
+              )}
+              {sortConfig.type === 'name' && sortConfig.direction === 'desc' && (
+                <ArrowUp className="h-4 w-4" />
+              )}
+            </Button>
+            
+            <Button 
+              variant="outline" 
+              size="sm" 
+              className="flex items-center gap-1.5" 
+              onClick={() => handleSort('date')}
+            >
+              Expiration date
+              {sortConfig.type === 'date' && sortConfig.direction === 'asc' && (
+                <ArrowDown className="h-4 w-4" />
+              )}
+              {sortConfig.type === 'date' && sortConfig.direction === 'desc' && (
+                <ArrowUp className="h-4 w-4" />
+              )}
+            </Button>
+          </div>
         </div>
         
         {selectedCount > 0 && (
@@ -289,6 +292,12 @@ const PantryManagement: React.FC<PantryManagementProps> = ({ pantryItems, setPan
                 className={`${item.selected ? 'border-pantry-green bg-pantry-green/5' : ''} border rounded-lg transition-colors`}
               >
                 <div className="flex items-center">
+                  <Checkbox
+                    id={`select-${item.id}`}
+                    checked={item.selected}
+                    onCheckedChange={() => handleItemSelection(item.id)}
+                    className="ml-3 mr-1 data-[state=checked]:bg-pantry-green"
+                  />
                   <div className="flex-1">
                     <PantryItem
                       id={item.id}

@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { Utensils, Heart } from 'lucide-react';
+import { Heart } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 type ExpirationStatus = 'fresh' | 'expiring' | 'expired';
@@ -70,13 +70,6 @@ const PantryItem: React.FC<PantryItemProps> = ({
           </div>
         </div>
       </div>
-      
-      <button 
-        onClick={onFindRecipes}
-        className="p-2 bg-pantry-green/10 text-pantry-green hover:bg-pantry-green hover:text-white rounded-full transition-colors"
-      >
-        <Utensils size={18} />
-      </button>
     </div>
   );
 };

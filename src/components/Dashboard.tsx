@@ -1,12 +1,12 @@
-
 import React, { useState, useEffect } from 'react';
-import { Search, ChevronRight, Filter, Sparkles, Heart, Clock, User } from 'lucide-react';
+import { Search, ChevronRight, Sparkles, Heart, Clock, User } from 'lucide-react';
 import RecipeCard from './RecipeCard';
 import RecipeSuggestions from './RecipeSuggestions';
 import { useAuth } from '@/context/AuthContext';
 import { Dialog, DialogContent, DialogTrigger } from '@/components/ui/dialog';
 import { useNavigate } from 'react-router-dom';
 import { FilterOptions } from '@/pages/Index';
+import { toast } from 'sonner';
 
 const recipesData = [
   {
@@ -118,7 +118,7 @@ const Dashboard: React.FC<DashboardProps> = ({
   const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState('');
   const [showSuggestions, setShowSuggestions] = useState(false);
-  const [showFilters, setShowFilters] = useState(false);
+  const [showFilters, setShowFilters] = useState(true);
   
   const [pantryItems] = useState([
     'Chicken breast',
@@ -150,29 +150,40 @@ const Dashboard: React.FC<DashboardProps> = ({
     });
   };
 
+  const handleSearchSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (!searchQuery.trim()) return;
+    
+    const matchedRecipes = recipesData.filter(recipe => 
+      recipe.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      recipe.dietaryLabels.some(label => label.toLowerCase().includes(searchQuery.toLowerCase()))
+    );
+    
+    if (matchedRecipes.length > 0) {
+      toast.success(`Found ${matchedRecipes.length} recipes matching "${searchQuery}"`);
+    } else {
+      toast.info(`No recipes found for "${searchQuery}". Try different keywords.`);
+    }
+  };
+
   const firstName = user?.user_metadata?.first_name || 'Chef';
 
-  // Filter recipes based on search query and filter options
   const filteredRecipes = recipesData.filter(recipe => {
-    // Filter by search query
     const matchesSearch = recipe.title.toLowerCase().includes(searchQuery.toLowerCase());
     
-    // Filter by cooking level if selected
     const matchesSkill = !filterOptions.skill || recipe.cookingLevel === filterOptions.skill;
     
-    // Filter by cooking time if selected
     let matchesTime = true;
     if (filterOptions.time) {
       const [min, max] = filterOptions.time.split('-').map(Number);
       if (max) {
         matchesTime = recipe.cookTime >= min && recipe.cookTime <= max;
       } else {
-        // Handle the '60+' case
         matchesTime = recipe.cookTime >= 60;
       }
     }
     
-    // Filter by dietary preference if selected
     const matchesDiet = !filterOptions.diet || 
                         filterOptions.diet === 'No preference' || 
                         recipe.dietaryLabels.includes(filterOptions.diet);
@@ -182,7 +193,6 @@ const Dashboard: React.FC<DashboardProps> = ({
 
   return (
     <div className="pb-24">
-      {/* Header Section */}
       <div className="relative bg-pantry-green pt-12 pb-8 px-4 rounded-b-3xl overflow-hidden mb-6">
         <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1490818387583-1baba5e638af?ixlib=rb-4.0.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1932&q=80')] bg-cover opacity-10" />
         
@@ -215,25 +225,8 @@ const Dashboard: React.FC<DashboardProps> = ({
             </Dialog>
           </div>
           
-          <div className="relative">
-            <input 
-              type="text"
-              placeholder="Search recipes, ingredients..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-10 pr-14 py-3 bg-white/90 backdrop-blur-md rounded-xl border-none focus:ring-2 focus:ring-white/30 transition-all"
-            />
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" size={18} />
-            <button 
-              className="absolute right-3 top-1/2 -translate-y-1/2 bg-pantry-green text-white p-1 rounded-lg"
-              onClick={() => setShowFilters(!showFilters)}
-            >
-              <Filter size={16} />
-            </button>
-          </div>
-          
           {showFilters && (
-            <div className="mt-3 p-4 bg-white rounded-xl shadow-lg">
+            <div className="mb-3 p-4 bg-white rounded-xl shadow-lg">
               <div className="space-y-3">
                 <div>
                   <p className="text-sm font-medium mb-1">Cooking skill level</p>
@@ -306,10 +299,23 @@ const Dashboard: React.FC<DashboardProps> = ({
               </div>
             </div>
           )}
+          
+          <form onSubmit={handleSearchSubmit}>
+            <div className="relative">
+              <input 
+                type="text"
+                placeholder="Search recipes, ingredients..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="w-full pl-10 pr-4 py-3 bg-white/90 backdrop-blur-md rounded-xl border-none focus:ring-2 focus:ring-white/30 transition-all"
+              />
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" size={18} />
+              <button type="submit" className="hidden">Search</button>
+            </div>
+          </form>
         </div>
       </div>
       
-      {/* Smart Picks */}
       <div className="px-4 mb-8">
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-lg font-semibold">Smart Picks</h2>
@@ -349,7 +355,6 @@ const Dashboard: React.FC<DashboardProps> = ({
         </div>
       </div>
       
-      {/* Pantry Summary */}
       <div className="px-4 mb-8">
         <h2 className="text-lg font-semibold mb-4">Your Pantry</h2>
         <div className="grid grid-cols-3 gap-3">
@@ -371,7 +376,6 @@ const Dashboard: React.FC<DashboardProps> = ({
         </div>
       </div>
       
-      {/* Explore Recipes */}
       <div className="px-4">
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-lg font-semibold">Explore Recipes</h2>
@@ -402,7 +406,6 @@ const Dashboard: React.FC<DashboardProps> = ({
         </div>
       </div>
 
-      {/* Recipe Suggestions Modal */}
       {showSuggestions && (
         <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4">
           <div className="bg-white rounded-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
