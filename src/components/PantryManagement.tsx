@@ -1,6 +1,6 @@
 
-import React, { useState } from 'react';
-import { Search, MapPin, Info, Filter, Heart } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Search, MapPin, Info, ArrowDown, ArrowUp, Trash2, Filter } from 'lucide-react';
 import PantryItem from './PantryItem';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
@@ -19,66 +19,25 @@ interface PantryItemType {
   selected: boolean;
 }
 
-const generateDemoItems = (): PantryItemType[] => {
-  const brands = ['Organic Valley', 'Heinz', 'Kraft', 'General Mills', 'Kellogg\'s', 'Campbell\'s', 'Nestlé', 'Tyson', 'Barilla', 'Whole Foods'];
-  const names = ['Milk', 'Eggs', 'Bread', 'Chicken Breast', 'Rice', 'Pasta', 'Tomato Sauce', 'Beans', 'Cereal', 'Yogurt', 'Apple Juice', 'Cheese', 'Ground Beef', 'Salmon', 'Spinach', 'Bell Peppers', 'Onions', 'Garlic', 'Potatoes', 'Carrots', 'Bananas', 'Apples', 'Oranges', 'Strawberries', 'Blueberries', 'Almonds', 'Peanut Butter', 'Jelly', 'Flour', 'Sugar'];
-  const quantities = ['1 gallon', '12 count', '1 loaf', '2 lbs', '5 lbs', '16 oz', '24 oz', '15 oz can', '18 oz box', '32 oz', '64 fl oz', '8 oz', '1 lb', '1 lb', '10 oz bag', '3 count', '2 lb bag', '1 bulb', '5 lb bag', '2 lb bag', '1 bunch', '6 count', '4 count', '1 pint', '6 oz', '12 oz bag', '16 oz jar', '12 oz jar', '5 lb bag', '4 lb bag'];
-  
-  const items: PantryItemType[] = [];
-  
-  // Create demo items with varied expiration statuses
-  for (let i = 0; i < 30; i++) {
-    const randomBrand = brands[Math.floor(Math.random() * brands.length)];
-    const randomName = names[Math.floor(Math.random() * names.length)];
-    const randomQuantity = quantities[Math.floor(Math.random() * quantities.length)];
-    
-    // Determine expiration status and date
-    const statusRandom = Math.random();
-    let expirationStatus: 'fresh' | 'expiring' | 'expired';
-    let expirationDate: string;
-    
-    if (statusRandom < 0.6) {
-      expirationStatus = 'fresh';
-      const days = Math.floor(Math.random() * 30) + 20; // 20-50 days in the future
-      const date = new Date();
-      date.setDate(date.getDate() + days);
-      expirationDate = `${date.getMonth() + 1}/${date.getDate()}/${date.getFullYear()}`;
-    } else if (statusRandom < 0.85) {
-      expirationStatus = 'expiring';
-      const days = Math.floor(Math.random() * 6) + 1; // 1-7 days in the future
-      const date = new Date();
-      date.setDate(date.getDate() + days);
-      expirationDate = `${date.getMonth() + 1}/${date.getDate()}/${date.getFullYear()}`;
-    } else {
-      expirationStatus = 'expired';
-      const days = Math.floor(Math.random() * 10) + 1; // 1-10 days in the past
-      const date = new Date();
-      date.setDate(date.getDate() - days);
-      expirationDate = `${date.getMonth() + 1}/${date.getDate()}/${date.getFullYear()}`;
-    }
-    
-    items.push({
-      id: `item-${i}`,
-      name: randomName,
-      brand: randomBrand,
-      quantity: randomQuantity,
-      expirationDate,
-      expirationStatus,
-      selected: false,
-    });
-  }
-  
-  return items;
-};
+interface PantryManagementProps {
+  pantryItems: PantryItemType[];
+  setPantryItems: React.Dispatch<React.SetStateAction<PantryItemType[]>>;
+}
 
-const PantryManagement: React.FC = () => {
-  const [pantryItems, setPantryItems] = useState<PantryItemType[]>(generateDemoItems());
+type SortDirection = 'none' | 'asc' | 'desc';
+type SortType = 'name' | 'date';
+
+const PantryManagement: React.FC<PantryManagementProps> = ({ pantryItems, setPantryItems }) => {
   const [searchQuery, setSearchQuery] = useState('');
   const [showFoodBankModal, setShowFoodBankModal] = useState(false);
   const [zipCode, setZipCode] = useState('');
   const [foodBanks, setFoodBanks] = useState<any[]>([]);
   const [showDonateItemsModal, setShowDonateItemsModal] = useState(false);
   const [itemsToDonate, setItemsToDonate] = useState<PantryItemType[]>([]);
+  const [sortConfig, setSortConfig] = useState<{type: SortType, direction: SortDirection}>({
+    type: 'name',
+    direction: 'none'
+  });
   
   const handleItemSelection = (id: string) => {
     setPantryItems(items => 
@@ -86,6 +45,11 @@ const PantryManagement: React.FC = () => {
         item.id === id ? { ...item, selected: !item.selected } : item
       )
     );
+  };
+
+  const handleRemoveItem = (id: string) => {
+    setPantryItems(items => items.filter(item => item.id !== id));
+    toast.success('Item removed from pantry');
   };
   
   const selectedCount = pantryItems.filter(item => item.selected).length;
@@ -172,8 +136,44 @@ const PantryManagement: React.FC = () => {
       { id: 3, name: 'Feeding Families Center', address: '789 Elm St, Anytown, USA', distance: '3.1 miles' },
     ]);
   };
+
+  const handleSort = (type: SortType) => {
+    let newDirection: SortDirection = 'asc';
+    
+    if (sortConfig.type === type) {
+      // Toggle direction if same type
+      if (sortConfig.direction === 'asc') {
+        newDirection = 'desc';
+      } else if (sortConfig.direction === 'desc') {
+        newDirection = 'none';
+      }
+    }
+    
+    setSortConfig({ type, direction: newDirection });
+  };
   
-  const filteredItems = pantryItems.filter(item => 
+  // Sort logic for pantry items
+  const getSortedItems = () => {
+    if (sortConfig.direction === 'none') {
+      return [...pantryItems];
+    }
+    
+    return [...pantryItems].sort((a, b) => {
+      if (sortConfig.type === 'name') {
+        const comparison = a.name.localeCompare(b.name);
+        return sortConfig.direction === 'asc' ? comparison : -comparison;
+      } else if (sortConfig.type === 'date') {
+        const dateA = new Date(a.expirationDate);
+        const dateB = new Date(b.expirationDate);
+        const comparison = dateA.getTime() - dateB.getTime();
+        return sortConfig.direction === 'asc' ? comparison : -comparison;
+      }
+      return 0;
+    });
+  };
+  
+  // Filter and sort items
+  const filteredItems = getSortedItems().filter(item => 
     item.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
     item.brand.toLowerCase().includes(searchQuery.toLowerCase())
   );
@@ -189,18 +189,66 @@ const PantryManagement: React.FC = () => {
       <div className="px-4 pt-12 pb-4">
         <h1 className="text-2xl font-bold mb-6">Pantry Management</h1>
         
+        {expiringItemsCount > 0 && (
+          <div className="bg-amber-50 rounded-xl p-4 mb-6">
+            <div className="flex justify-between items-center">
+              <div>
+                <p className="font-medium text-amber-800">{expiringItemsCount} items expiring soon</p>
+                <p className="text-sm text-amber-700">Help reduce food waste by donating</p>
+              </div>
+              <Button 
+                onClick={handleOpenDonateModal}
+                size="sm"
+                className="bg-amber-500 hover:bg-amber-600 text-white"
+              >
+                Donate Now
+              </Button>
+            </div>
+          </div>
+        )}
+        
         <div className="relative mb-6">
           <input 
             type="text"
             placeholder="Search pantry items..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full pl-10 pr-14 py-3 bg-white rounded-xl border-none shadow-sm focus:ring-2 focus:ring-pantry-green/30 transition-all"
+            className="w-full pl-10 pr-4 py-3 bg-white rounded-xl border-none shadow-sm focus:ring-2 focus:ring-pantry-green/30 transition-all"
           />
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" size={18} />
-          <button className="absolute right-3 top-1/2 -translate-y-1/2 bg-pantry-green text-white p-1 rounded-lg">
-            <Filter size={16} />
-          </button>
+        </div>
+
+        {/* Sort filters */}
+        <div className="flex space-x-2 mb-4">
+          <Button 
+            variant="outline" 
+            size="sm" 
+            className="flex items-center gap-1.5" 
+            onClick={() => handleSort('name')}
+          >
+            Name
+            {sortConfig.type === 'name' && sortConfig.direction === 'asc' && (
+              <ArrowDown className="h-4 w-4" />
+            )}
+            {sortConfig.type === 'name' && sortConfig.direction === 'desc' && (
+              <ArrowUp className="h-4 w-4" />
+            )}
+          </Button>
+          
+          <Button 
+            variant="outline" 
+            size="sm" 
+            className="flex items-center gap-1.5" 
+            onClick={() => handleSort('date')}
+          >
+            Expiration
+            {sortConfig.type === 'date' && sortConfig.direction === 'asc' && (
+              <ArrowDown className="h-4 w-4" />
+            )}
+            {sortConfig.type === 'date' && sortConfig.direction === 'desc' && (
+              <ArrowUp className="h-4 w-4" />
+            )}
+          </Button>
         </div>
         
         {selectedCount > 0 && (
@@ -228,45 +276,40 @@ const PantryManagement: React.FC = () => {
           </div>
         )}
         
-        {expiringItemsCount > 0 && (
-          <div className="bg-amber-50 rounded-xl p-4 mb-6">
-            <div className="flex justify-between items-center">
-              <div>
-                <p className="font-medium text-amber-800">{expiringItemsCount} items expiring soon</p>
-                <p className="text-sm text-amber-700">Help reduce food waste by donating</p>
-              </div>
-              <Button 
-                onClick={handleOpenDonateModal}
-                size="sm"
-                className="bg-amber-500 hover:bg-amber-600 text-white"
-              >
-                Donate Now
-              </Button>
-            </div>
-          </div>
-        )}
-        
         <div className="space-y-3">
-          {filteredItems.map(item => (
-            <div 
-              key={item.id} 
-              className={`${item.selected ? 'border-pantry-green bg-pantry-green/5' : ''} border rounded-lg transition-colors`}
-            >
-              <div className="flex items-center">
-                <div className="flex-1">
-                  <PantryItem
-                    id={item.id}
-                    name={item.name}
-                    brand={item.brand}
-                    quantity={item.quantity}
-                    expirationDate={item.expirationDate}
-                    expirationStatus={item.expirationStatus}
-                    onFindRecipes={() => handleItemSelection(item.id)}
-                  />
+          {filteredItems.length === 0 ? (
+            <div className="text-center py-12 text-muted-foreground">
+              <p className="mb-2">No items found in your pantry</p>
+              <p className="text-sm">Add items using the + button</p>
+            </div>
+          ) : (
+            filteredItems.map(item => (
+              <div 
+                key={item.id} 
+                className={`${item.selected ? 'border-pantry-green bg-pantry-green/5' : ''} border rounded-lg transition-colors`}
+              >
+                <div className="flex items-center">
+                  <div className="flex-1">
+                    <PantryItem
+                      id={item.id}
+                      name={item.name}
+                      brand={item.brand}
+                      quantity={item.quantity}
+                      expirationDate={item.expirationDate}
+                      expirationStatus={item.expirationStatus}
+                      onFindRecipes={() => handleItemSelection(item.id)}
+                    />
+                  </div>
+                  <button 
+                    onClick={() => handleRemoveItem(item.id)}
+                    className="mr-3 p-2 text-red-500 hover:bg-red-50 rounded-full transition-colors"
+                  >
+                    <Trash2 size={18} />
+                  </button>
                 </div>
               </div>
-            </div>
-          ))}
+            ))
+          )}
         </div>
       </div>
       

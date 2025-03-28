@@ -5,6 +5,7 @@ import RecipeCard from './RecipeCard';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import Badge from './ui-components/Badge';
 
+// Recipe data with realistic food images
 const recipesData = [
   {
     id: '1',
@@ -319,11 +320,13 @@ const recipesData = [
 interface RecipeHubProps {
   favoriteRecipes: string[];
   onToggleFavorite: (recipeId: string) => void;
+  pantryItems?: string[];
 }
 
-const RecipeHub: React.FC<RecipeHubProps> = ({ favoriteRecipes, onToggleFavorite }) => {
+const RecipeHub: React.FC<RecipeHubProps> = ({ favoriteRecipes, onToggleFavorite, pantryItems = [] }) => {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedRecipe, setSelectedRecipe] = useState<(typeof recipesData)[0] | null>(null);
+  const [showFilters, setShowFilters] = useState(false);
 
   const handleRecipeClick = (recipe: (typeof recipesData)[0]) => {
     setSelectedRecipe(recipe);
@@ -334,27 +337,53 @@ const RecipeHub: React.FC<RecipeHubProps> = ({ favoriteRecipes, onToggleFavorite
     onToggleFavorite(recipeId);
   };
 
-  const filteredRecipes = recipesData.filter(recipe => 
-    recipe.title.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  const handleSearch = (query: string) => {
+    setSearchQuery(query);
+  };
+
+  // Filter recipes based on search query
+  const filteredRecipes = recipesData.filter(recipe => {
+    if (!searchQuery) return true;
+    
+    // Check if recipe title matches search
+    if (recipe.title.toLowerCase().includes(searchQuery.toLowerCase())) return true;
+    
+    // Check if any ingredient matches search
+    const ingredientMatch = recipe.ingredients.some(ingredient => 
+      ingredient.toLowerCase().includes(searchQuery.toLowerCase())
+    );
+    
+    return ingredientMatch;
+  });
 
   return (
     <div className="pb-24">
       <div className="px-4 pt-12 pb-6">
         <h1 className="text-2xl font-bold mb-6">Recipe Hub</h1>
         
-        <div className="relative mb-6">
-          <input 
-            type="text"
-            placeholder="Search recipes..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full pl-10 pr-14 py-3 bg-white rounded-xl border-none shadow-sm focus:ring-2 focus:ring-pantry-green/30 transition-all"
-          />
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" size={18} />
-          <button className="absolute right-3 top-1/2 -translate-y-1/2 bg-pantry-green text-white p-1 rounded-lg">
-            <Filter size={16} />
-          </button>
+        <div className="mb-6">
+          <div className="relative">
+            <input 
+              type="text"
+              placeholder="Search recipes or ingredients..."
+              value={searchQuery}
+              onChange={(e) => handleSearch(e.target.value)}
+              className="w-full pl-10 pr-14 py-3 bg-white rounded-xl border-none shadow-sm focus:ring-2 focus:ring-pantry-green/30 transition-all"
+            />
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" size={18} />
+            <button 
+              className="absolute right-3 top-1/2 -translate-y-1/2 bg-pantry-green text-white p-1 rounded-lg"
+              onClick={() => setShowFilters(!showFilters)}
+            >
+              <Filter size={16} />
+            </button>
+          </div>
+          
+          {searchQuery && (
+            <div className="mt-2 text-sm text-muted-foreground">
+              Showing {filteredRecipes.length} recipes with "{searchQuery}"
+            </div>
+          )}
         </div>
         
         <div className="grid grid-cols-2 gap-4">
@@ -431,10 +460,11 @@ const RecipeHub: React.FC<RecipeHubProps> = ({ favoriteRecipes, onToggleFavorite
                 
                 <div>
                   <h3 className="font-semibold text-lg mb-2">Instructions</h3>
-                  <ol className="list-decimal list-inside space-y-3">
+                  <ol className="space-y-3">
                     {selectedRecipe.instructions.map((instruction, i) => (
-                      <li key={i} className="text-sm">
-                        <span className="font-medium">Step {i+1}:</span> {instruction}
+                      <li key={i} className="bg-gray-50 p-3 rounded-lg border-l-4 border-pantry-green">
+                        <span className="font-medium block text-pantry-green mb-1">Step {i+1}</span>
+                        <span className="text-sm">{instruction}</span>
                       </li>
                     ))}
                   </ol>

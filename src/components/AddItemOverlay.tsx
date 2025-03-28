@@ -8,7 +8,7 @@ import { Button } from '@/components/ui/button';
 interface AddItemOverlayProps {
   isOpen: boolean;
   onClose: () => void;
-  onAddItems: (items: string[]) => void;
+  onAddItems: (items: {name: string, brand: string, quantity: string}[]) => void;
 }
 
 type InputMethod = 'barcode' | 'receipt' | 'voice' | 'manual' | null;
@@ -19,7 +19,7 @@ const AddItemOverlay: React.FC<AddItemOverlayProps> = ({
   onAddItems,
 }) => {
   const [inputMethod, setInputMethod] = useState<InputMethod>(null);
-  const [detectedItems, setDetectedItems] = useState<{ name: string; selected: boolean }[]>([]);
+  const [detectedItems, setDetectedItems] = useState<{ name: string; brand: string; quantity: string; selected: boolean }[]>([]);
   const [manualInput, setManualInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [isRecording, setIsRecording] = useState(false);
@@ -46,8 +46,8 @@ const AddItemOverlay: React.FC<AddItemOverlayProps> = ({
     // Simulate a delay for scanning
     setTimeout(() => {
       setDetectedItems([
-        { name: 'Campbell\'s Tomato Soup', selected: true },
-        { name: 'Heinz Ketchup', selected: true },
+        { name: 'Campbell\'s Tomato Soup', brand: 'Campbell\'s', quantity: '10.75 oz can', selected: true },
+        { name: 'Heinz Ketchup', brand: 'Heinz', quantity: '20 oz bottle', selected: true },
       ]);
       setIsLoading(false);
     }, 2000);
@@ -58,10 +58,10 @@ const AddItemOverlay: React.FC<AddItemOverlayProps> = ({
     // Simulate a delay for processing receipt
     setTimeout(() => {
       setDetectedItems([
-        { name: 'Organic Bananas', selected: true },
-        { name: 'Almond Milk', selected: true },
-        { name: 'Whole Wheat Bread', selected: true },
-        { name: 'Greek Yogurt', selected: true },
+        { name: 'Organic Bananas', brand: 'Chiquita', quantity: '1 bunch', selected: true },
+        { name: 'Almond Milk', brand: 'Silk', quantity: '0.5 gal', selected: true },
+        { name: 'Whole Wheat Bread', brand: 'Nature\'s Own', quantity: '1 loaf', selected: true },
+        { name: 'Greek Yogurt', brand: 'Fage', quantity: '32 oz tub', selected: true },
       ]);
       setIsLoading(false);
     }, 2000);
@@ -73,9 +73,9 @@ const AddItemOverlay: React.FC<AddItemOverlayProps> = ({
     setTimeout(() => {
       setIsRecording(false);
       setDetectedItems([
-        { name: 'Apples', selected: true },
-        { name: 'Chicken Breast', selected: true },
-        { name: 'Spinach', selected: true },
+        { name: 'Apples', brand: 'Gala', quantity: '6 count', selected: true },
+        { name: 'Chicken Breast', brand: 'Perdue', quantity: '1 lb', selected: true },
+        { name: 'Spinach', brand: 'Organic', quantity: '10 oz bag', selected: true },
       ]);
     }, 3000);
   };
@@ -87,9 +87,9 @@ const AddItemOverlay: React.FC<AddItemOverlayProps> = ({
     // Simulate search delay
     setTimeout(() => {
       const suggestions = [
-        { name: manualInput, selected: true },
-        { name: `Organic ${manualInput}`, selected: false },
-        { name: `${manualInput} (Fresh)`, selected: false },
+        { name: manualInput, brand: 'Generic', quantity: '1 item', selected: true },
+        { name: `Organic ${manualInput}`, brand: 'Organic', quantity: '1 item', selected: false },
+        { name: `${manualInput} (Fresh)`, brand: 'Fresh Market', quantity: '1 item', selected: false },
       ];
       setDetectedItems(suggestions);
       setIsLoading(false);
@@ -106,7 +106,7 @@ const AddItemOverlay: React.FC<AddItemOverlayProps> = ({
   const addItemsToPantry = () => {
     const selectedItems = detectedItems
       .filter(item => item.selected)
-      .map(item => item.name);
+      .map(({name, brand, quantity}) => ({name, brand, quantity}));
     
     if (selectedItems.length === 0) {
       toast.error('No items selected');
