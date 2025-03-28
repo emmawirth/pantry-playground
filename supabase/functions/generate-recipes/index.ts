@@ -1,4 +1,3 @@
-
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
 import { OpenAI } from "https://esm.sh/openai@4.0.0"
 
@@ -9,7 +8,7 @@ const corsHeaders = {
 
 // Initialize OpenAI client
 const openai = new OpenAI({
-  apiKey: Deno.env.get('OpenAI')
+  apiKey: Deno.env.get('VITE_OPENAI_API_KEY')
 })
 
 // Mock recipes to use as fallback
