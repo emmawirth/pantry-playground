@@ -13,7 +13,8 @@ interface PantryItemProps {
   expirationDate: string;
   expirationStatus: ExpirationStatus;
   image?: string;
-  onFindRecipes: () => void;
+  isSelected?: boolean;
+  onSelect?: () => void;
 }
 
 const PantryItem: React.FC<PantryItemProps> = ({
@@ -24,10 +25,17 @@ const PantryItem: React.FC<PantryItemProps> = ({
   expirationDate,
   expirationStatus,
   image,
-  onFindRecipes,
+  isSelected,
+  onSelect,
 }) => {
   return (
-    <div className="pantry-card p-3 flex items-center space-x-3">
+    <div 
+      className={cn(
+        "pantry-card p-3 flex items-center space-x-3",
+        isSelected && "border-pantry-green bg-pantry-green/5"
+      )}
+      onClick={onSelect}
+    >
       <div 
         className={cn(
           "w-12 h-12 flex-shrink-0 rounded-lg overflow-hidden flex items-center justify-center",

@@ -117,13 +117,16 @@ serve(async (req) => {
       )
     }
     
-    console.log(`Generating recipes for: ${pantryItems.join(', ')}`)
+    console.log(`Generating recipe suggestions for items: ${pantryItems.join(', ')}`)
     
-    const prompt = `Given these pantry items: ${pantryItems.join(', ')}, suggest 3 creative recipes. 
+    const prompt = `Given these available pantry items: ${pantryItems.join(', ')}, suggest 3 creative recipes. 
+    The recipes MUST use at least 2 of the provided pantry items, but can also suggest additional ingredients that might not be in the list.
+    Prioritize recipes that use MORE of the provided pantry items, but feel free to suggest common additional ingredients to complete the recipe.
+    
     For each recipe, provide:
     1. A creative title
-    2. A brief description
-    3. List of ingredients (including quantities)
+    2. A brief description that mentions which pantry items are used
+    3. List of ingredients (including quantities), clearly marking which ones come from the pantry list
     4. Step-by-step instructions
     5. Estimated cooking time
     6. Difficulty level (must be exactly one of these values: "Beginner", "Intermediate", or "Advanced")
@@ -136,7 +139,7 @@ serve(async (req) => {
       messages: [
         {
           role: "system",
-          content: "You are a creative chef who specializes in making delicious recipes from available ingredients."
+          content: "You are a creative chef who specializes in making delicious recipes from available ingredients. You're excellent at suggesting recipes that use what people already have, while minimizing additional ingredients they might need to buy."
         },
         {
           role: "user",

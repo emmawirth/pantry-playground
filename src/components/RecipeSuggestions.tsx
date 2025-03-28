@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect } from 'react';
-import { Loader2, X } from 'lucide-react';
+import { Loader2, X, ArrowLeft } from 'lucide-react';
 import { getRecipeSuggestions, RecipeSuggestion } from '@/services/openai';
 import Badge from './ui-components/Badge';
 import { toast } from 'sonner';
@@ -67,6 +67,14 @@ const RecipeSuggestions: React.FC<RecipeSuggestionsProps> = ({ pantryItems, onCl
     setSelectedRecipe(null);
   };
 
+  const calculatePantryItemsUsed = (ingredients: string[]) => {
+    return pantryItems.filter(item => 
+      ingredients.some(ingredient => 
+        ingredient.toLowerCase().includes(item.toLowerCase())
+      )
+    );
+  };
+
   if (loading) {
     return (
       <div className="flex flex-col items-center justify-center p-8">
@@ -113,7 +121,8 @@ const RecipeSuggestions: React.FC<RecipeSuggestionsProps> = ({ pantryItems, onCl
             onClick={handleBackToList}
             className="flex items-center text-muted-foreground hover:text-foreground transition-colors gap-1"
           >
-            <span>← Back to recipes</span>
+            <ArrowLeft size={16} />
+            <span>Back to recipes</span>
           </button>
           <button
             onClick={onClose}
@@ -155,7 +164,7 @@ const RecipeSuggestions: React.FC<RecipeSuggestionsProps> = ({ pantryItems, onCl
             </div>
 
             <div className="flex items-center justify-between pt-4">
-              <div className="flex items-center space-x-2">
+              <div className="flex flex-wrap items-center gap-2">
                 <Badge label={selectedRecipe.difficulty} variant="level" />
                 {selectedRecipe.dietaryLabels.map((label, i) => (
                   <Badge key={i} label={label} variant="dietary" />
@@ -188,11 +197,9 @@ const RecipeSuggestions: React.FC<RecipeSuggestionsProps> = ({ pantryItems, onCl
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {suggestions.map((recipe, index) => {
-          const pantryItemsUsed = pantryItems.filter(item => 
-            recipe.ingredients.some(ingredient => 
-              ingredient.toLowerCase().includes(item.toLowerCase())
-            )
-          );
+          const pantryItemsUsed = calculatePantryItemsUsed(recipe.ingredients);
+          const totalIngredients = recipe.ingredients.length;
+          const additionalIngredientsNeeded = totalIngredients - pantryItemsUsed.length;
           
           return (
             <div 
@@ -203,10 +210,20 @@ const RecipeSuggestions: React.FC<RecipeSuggestionsProps> = ({ pantryItems, onCl
               <h3 className="text-lg font-semibold mb-2">{recipe.title}</h3>
               <p className="text-muted-foreground text-sm mb-4 line-clamp-2">{recipe.description}</p>
               
-              <div className="mb-3">
-                <span className="text-xs text-pantry-green font-medium">
-                  Uses {pantryItemsUsed.length} of your pantry items
-                </span>
+              <div className="mb-3 space-y-2">
+                <div className="flex items-center">
+                  <span className="text-xs bg-pantry-green/10 text-pantry-green font-medium px-2 py-1 rounded-full">
+                    Uses {pantryItemsUsed.length} of your pantry items
+                  </span>
+                </div>
+                
+                {additionalIngredientsNeeded > 0 && (
+                  <div className="flex items-center">
+                    <span className="text-xs bg-gray-100 text-gray-600 font-medium px-2 py-1 rounded-full">
+                      Needs {additionalIngredientsNeeded} additional ingredient{additionalIngredientsNeeded !== 1 ? 's' : ''}
+                    </span>
+                  </div>
+                )}
               </div>
               
               <div className="flex items-center justify-between">
