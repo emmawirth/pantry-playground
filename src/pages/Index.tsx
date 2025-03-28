@@ -2,15 +2,35 @@
 import React, { useState } from 'react';
 import Navigation from '@/components/Navigation';
 import Dashboard from '@/components/Dashboard';
+import RecipeHub from '@/components/RecipeHub';
+import PantryManagement from '@/components/PantryManagement';
+import SocialFeed from '@/components/SocialFeed';
+import ProfileSettings from '@/components/ProfileSettings';
 import AddItemOverlay from '@/components/AddItemOverlay';
 import { toast } from 'sonner';
-import { Package, Users, Book } from 'lucide-react';
+import { Dialog, DialogTrigger, DialogContent } from '@/components/ui/dialog';
+import { User } from 'lucide-react';
+import { useAuth } from '@/context/AuthContext';
 
 type TabType = 'dashboard' | 'recipes' | 'add' | 'pantry' | 'feed';
 
 const Index = () => {
+  const { user } = useAuth();
   const [activeTab, setActiveTab] = useState<TabType>('dashboard');
   const [isAddOverlayOpen, setIsAddOverlayOpen] = useState(false);
+  const [showProfileSettings, setShowProfileSettings] = useState(false);
+  const [pantryItems, setPantryItems] = useState<string[]>([
+    'Chicken breast',
+    'Rice',
+    'Onions',
+    'Garlic',
+    'Olive oil',
+    'Mixed vegetables',
+    'Soy sauce',
+    'Ginger',
+    'Bell peppers',
+    'Mushrooms'
+  ]);
 
   const handleTabChange = (tab: TabType) => {
     setActiveTab(tab);
@@ -20,11 +40,8 @@ const Index = () => {
     setIsAddOverlayOpen(true);
   };
 
-  const handleAddMethod = (method: string) => {
-    setIsAddOverlayOpen(false);
-    toast.success(`${method} feature coming soon!`, {
-      description: "This feature will be available in the next update."
-    });
+  const handleAddItems = (items: string[]) => {
+    setPantryItems(prev => [...prev, ...items]);
   };
 
   const renderActiveTab = () => {
@@ -32,41 +49,11 @@ const Index = () => {
       case 'dashboard':
         return <Dashboard />;
       case 'recipes':
-        return (
-          <div className="flex flex-col items-center justify-center h-[80vh]">
-            <div className="w-16 h-16 bg-pantry-green/10 text-pantry-green flex items-center justify-center rounded-full mb-4">
-              <Book size={32} />
-            </div>
-            <h2 className="text-xl font-semibold mb-2">Recipe Hub</h2>
-            <p className="text-muted-foreground text-center max-w-xs">
-              Find and save your favorite recipes here. Coming soon!
-            </p>
-          </div>
-        );
+        return <RecipeHub />;
       case 'pantry':
-        return (
-          <div className="flex flex-col items-center justify-center h-[80vh]">
-            <div className="w-16 h-16 bg-pantry-green/10 text-pantry-green flex items-center justify-center rounded-full mb-4">
-              <Package size={32} />
-            </div>
-            <h2 className="text-xl font-semibold mb-2">Pantry Management</h2>
-            <p className="text-muted-foreground text-center max-w-xs">
-              Keep track of all your ingredients and their expiration dates. Coming soon!
-            </p>
-          </div>
-        );
+        return <PantryManagement />;
       case 'feed':
-        return (
-          <div className="flex flex-col items-center justify-center h-[80vh]">
-            <div className="w-16 h-16 bg-pantry-green/10 text-pantry-green flex items-center justify-center rounded-full mb-4">
-              <Users size={32} />
-            </div>
-            <h2 className="text-xl font-semibold mb-2">Social Feed</h2>
-            <p className="text-muted-foreground text-center max-w-xs">
-              Connect with friends and discover community recipes. Coming soon!
-            </p>
-          </div>
-        );
+        return <SocialFeed />;
       default:
         return <Dashboard />;
     }
@@ -74,6 +61,19 @@ const Index = () => {
 
   return (
     <div className="min-h-screen bg-background">
+      <div className="fixed top-0 left-0 right-0 z-40 p-4">
+        <Dialog open={showProfileSettings} onOpenChange={setShowProfileSettings}>
+          <DialogTrigger asChild>
+            <button className="w-10 h-10 bg-pantry-green/10 rounded-full flex items-center justify-center">
+              <User className="text-pantry-green" size={20} />
+            </button>
+          </DialogTrigger>
+          <DialogContent className="max-w-full h-[90vh] p-0 sm:max-w-full">
+            <ProfileSettings />
+          </DialogContent>
+        </Dialog>
+      </div>
+      
       {renderActiveTab()}
       
       <Navigation 
@@ -85,10 +85,7 @@ const Index = () => {
       <AddItemOverlay 
         isOpen={isAddOverlayOpen}
         onClose={() => setIsAddOverlayOpen(false)}
-        onBarcodeClick={() => handleAddMethod('Barcode Scanner')}
-        onReceiptClick={() => handleAddMethod('Receipt Upload')}
-        onVoiceClick={() => handleAddMethod('Voice Input')}
-        onManualClick={() => handleAddMethod('Manual Entry')}
+        onAddItems={handleAddItems}
       />
     </div>
   );

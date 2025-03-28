@@ -1,7 +1,11 @@
+
 import React, { useState } from 'react';
-import { Search, ChevronRight, Filter, Sparkles } from 'lucide-react';
+import { Search, ChevronRight, Filter, Sparkles, Heart, Clock, User } from 'lucide-react';
 import RecipeCard from './RecipeCard';
 import RecipeSuggestions from './RecipeSuggestions';
+import { useAuth } from '@/context/AuthContext';
+import { Dialog, DialogContent, DialogTrigger } from '@/components/ui/dialog';
+import { useNavigate } from 'react-router-dom';
 
 const recipesData = [
   {
@@ -25,7 +29,7 @@ const recipesData = [
   {
     id: '3',
     title: 'Sweet Potato & Black Bean Tacos',
-    image: 'https://images.unsplash.com/photo-1584208632869-00fa4bf85ef e?ixlib=rb-4.0.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=800&q=80',
+    image: 'https://images.unsplash.com/photo-1584208632869-00fa4bf85efe?ixlib=rb-4.0.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=800&q=80',
     cookTime: 30,
     ingredientsAvailable: 60,
     dietaryLabels: ['Vegan', 'High Fiber'],
@@ -42,9 +46,24 @@ const recipesData = [
   },
 ];
 
+interface FilterOptions {
+  skill: 'Beginner' | 'Intermediate' | 'Expert' | null;
+  time: '0-20' | '20-40' | '40-60' | '60+' | null;
+  diet: string | null;
+}
+
 const Dashboard: React.FC = () => {
+  const { user, signOut } = useAuth();
+  const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState('');
   const [showSuggestions, setShowSuggestions] = useState(false);
+  const [showFilters, setShowFilters] = useState(false);
+  const [filterOptions, setFilterOptions] = useState<FilterOptions>({
+    skill: null,
+    time: '20-40',
+    diet: 'No preference',
+  });
+  
   const [pantryItems] = useState([
     'Chicken breast',
     'Rice',
@@ -60,10 +79,13 @@ const Dashboard: React.FC = () => {
   
   const handleRecipeClick = (id: string) => {
     console.log(`Recipe clicked: ${id}`);
+    navigate('/recipes');
   };
 
+  const firstName = user?.user_metadata?.first_name || 'Chef';
+
   return (
-    <div className="pb-20">
+    <div className="pb-24">
       {/* Header Section */}
       <div className="relative bg-pantry-green pt-12 pb-8 px-4 rounded-b-3xl overflow-hidden mb-6">
         <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1490818387583-1baba5e638af?ixlib=rb-4.0.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1932&q=80')] bg-cover opacity-10" />
@@ -71,12 +93,30 @@ const Dashboard: React.FC = () => {
         <div className="relative z-10">
           <div className="flex items-center justify-between mb-6">
             <div>
-              <span className="text-pantry-green-light">Hello,</span>
-              <h1 className="text-white text-2xl font-semibold mt-1">Alex</h1>
+              <span className="text-pantry-green-light">Welcome back! 🌱</span>
+              <h1 className="text-white text-2xl font-semibold mt-1">{firstName}</h1>
             </div>
-            <div className="w-10 h-10 bg-white/20 backdrop-blur-md rounded-full flex items-center justify-center">
-              <span className="text-white font-medium">A</span>
-            </div>
+            <Dialog>
+              <DialogTrigger>
+                <div className="w-10 h-10 bg-white/20 backdrop-blur-md rounded-full flex items-center justify-center">
+                  <User className="text-white" size={20} />
+                </div>
+              </DialogTrigger>
+              <DialogContent className="max-w-sm">
+                <div className="space-y-4 py-2">
+                  <h3 className="text-lg font-semibold">User Profile</h3>
+                  <p className="text-muted-foreground">{user?.email}</p>
+                  <div className="pt-4">
+                    <button
+                      onClick={() => signOut()}
+                      className="w-full py-2 px-4 bg-red-100 text-red-700 rounded-lg hover:bg-red-200 transition-colors"
+                    >
+                      Sign Out
+                    </button>
+                  </div>
+                </div>
+              </DialogContent>
+            </Dialog>
           </div>
           
           <div className="relative">
@@ -85,13 +125,100 @@ const Dashboard: React.FC = () => {
               placeholder="Search recipes, ingredients..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-10 pr-4 py-3 bg-white/90 backdrop-blur-md rounded-xl border-none focus:ring-2 focus:ring-white/30 transition-all"
+              className="w-full pl-10 pr-14 py-3 bg-white/90 backdrop-blur-md rounded-xl border-none focus:ring-2 focus:ring-white/30 transition-all"
             />
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" size={18} />
-            <button className="absolute right-3 top-1/2 -translate-y-1/2 bg-pantry-green text-white p-1 rounded-lg">
+            <button 
+              className="absolute right-3 top-1/2 -translate-y-1/2 bg-pantry-green text-white p-1 rounded-lg"
+              onClick={() => setShowFilters(!showFilters)}
+            >
               <Filter size={16} />
             </button>
           </div>
+          
+          {showFilters && (
+            <div className="mt-3 p-4 bg-white rounded-xl shadow-lg">
+              <div className="space-y-3">
+                <div>
+                  <p className="text-sm font-medium mb-1">Cooking skill level</p>
+                  <div className="flex space-x-2">
+                    {['Beginner', 'Intermediate', 'Expert'].map((level) => (
+                      <button
+                        key={level}
+                        onClick={() => setFilterOptions({
+                          ...filterOptions,
+                          skill: level as any,
+                        })}
+                        className={`text-xs px-3 py-1 rounded-full ${
+                          filterOptions.skill === level
+                            ? 'bg-pantry-green text-white'
+                            : 'bg-gray-100 text-gray-700'
+                        }`}
+                      >
+                        {level}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+                
+                <div>
+                  <p className="text-sm font-medium mb-1">Cooking Time</p>
+                  <div className="flex flex-wrap gap-2">
+                    {[
+                      { id: '0-20', label: '0-20 mins' },
+                      { id: '20-40', label: '20-40 mins' },
+                      { id: '40-60', label: '40-60 mins' },
+                      { id: '60+', label: '60+ mins' },
+                    ].map((option) => (
+                      <button
+                        key={option.id}
+                        onClick={() => setFilterOptions({
+                          ...filterOptions,
+                          time: option.id as any,
+                        })}
+                        className={`text-xs px-3 py-1 rounded-full ${
+                          filterOptions.time === option.id
+                            ? 'bg-pantry-green text-white'
+                            : 'bg-gray-100 text-gray-700'
+                        }`}
+                      >
+                        {option.label}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+                
+                <div>
+                  <p className="text-sm font-medium mb-1">Dietary Labels</p>
+                  <div className="flex flex-wrap gap-2">
+                    {[
+                      'No preference',
+                      'Vegan',
+                      'Vegetarian',
+                      'Gluten-Free',
+                      'Keto',
+                      'Paleo',
+                    ].map((diet) => (
+                      <button
+                        key={diet}
+                        onClick={() => setFilterOptions({
+                          ...filterOptions,
+                          diet: diet,
+                        })}
+                        className={`text-xs px-3 py-1 rounded-full ${
+                          filterOptions.diet === diet
+                            ? 'bg-pantry-green text-white'
+                            : 'bg-gray-100 text-gray-700'
+                        }`}
+                      >
+                        {diet}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
       </div>
       
