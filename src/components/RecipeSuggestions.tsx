@@ -5,6 +5,7 @@ import { getRecipeSuggestions, RecipeSuggestion } from '@/services/openai';
 import Badge from './ui-components/Badge';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
+import { ApiKeyDialog } from './ApiKeyDialog';
 
 interface RecipeSuggestionsProps {
   pantryItems: string[];
@@ -16,15 +17,26 @@ const RecipeSuggestions: React.FC<RecipeSuggestionsProps> = ({ pantryItems, onCl
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [selectedRecipe, setSelectedRecipe] = useState<RecipeSuggestion | null>(null);
+  const [needsApiKey, setNeedsApiKey] = useState(false);
 
   const fetchSuggestions = async () => {
     setLoading(true);
     setError(null);
+    setNeedsApiKey(false);
+    
     try {
       console.log('Starting recipe suggestions fetch...', pantryItems);
       
       if (!pantryItems || pantryItems.length === 0) {
         throw new Error('No pantry items available to generate recipes.');
+      }
+      
+      // Check if API key is available before attempting to fetch
+      const apiKey = window.OPENAI_API_KEY || localStorage.getItem('pantrypal_openai_key') || import.meta.env.VITE_OPENAI_API_KEY;
+      
+      if (!apiKey) {
+        setNeedsApiKey(true);
+        throw new Error('OpenAI API key is missing. Please add your API key to use recipe generation.');
       }
       
       const recipeSuggestions = await getRecipeSuggestions(pantryItems);
@@ -39,9 +51,11 @@ const RecipeSuggestions: React.FC<RecipeSuggestionsProps> = ({ pantryItems, onCl
       console.error('Error in fetchSuggestions:', err);
       if (err instanceof Error) {
         setError(err.message);
-        toast.error('Recipe generation failed', {
-          description: err.message
-        });
+        if (!err.message.includes('API key')) {
+          toast.error('Recipe generation failed', {
+            description: err.message
+          });
+        }
       } else {
         setError('Failed to generate recipe suggestions. Please try again.');
         toast.error('Recipe generation failed');
@@ -81,6 +95,32 @@ const RecipeSuggestions: React.FC<RecipeSuggestionsProps> = ({ pantryItems, onCl
         <Loader2 className="w-8 h-8 animate-spin text-pantry-green mb-4" />
         <p className="text-muted-foreground">Generating creative recipes...</p>
         <p className="text-sm text-muted-foreground mt-2">This may take a few moments</p>
+      </div>
+    );
+  }
+
+  if (needsApiKey) {
+    return (
+      <div className="p-8 text-center space-y-4">
+        <h3 className="text-lg font-medium">API Key Required</h3>
+        <p className="text-muted-foreground mb-6">
+          To generate recipe suggestions, you need to provide your OpenAI API key.
+        </p>
+        <div className="flex justify-center mb-4">
+          <ApiKeyDialog />
+        </div>
+        <Button 
+          onClick={fetchSuggestions}
+          className="mt-4"
+        >
+          Try Again
+        </Button>
+        <button
+          onClick={onClose}
+          className="block w-full text-sm text-muted-foreground hover:text-foreground transition-colors mt-6"
+        >
+          Cancel
+        </button>
       </div>
     );
   }

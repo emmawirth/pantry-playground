@@ -1,3 +1,4 @@
+
 import OpenAI from 'openai';
 import { toast } from 'sonner';
 
@@ -11,10 +12,30 @@ export interface RecipeSuggestion {
   dietaryLabels: string[];
 }
 
-// Initialize OpenAI client
-const openai = new OpenAI({
-  apiKey: import.meta.env.VITE_OPENAI_API_KEY
-});
+// Storage key for the OpenAI API key (matching the one in ApiKeyDialog.tsx)
+const STORAGE_KEY = 'pantrypal_openai_key';
+
+// Initialize OpenAI client with key from various sources
+const getOpenAIClient = () => {
+  // Try to get API key from window global variable (set by ApiKeyDialog)
+  let apiKey = window.OPENAI_API_KEY;
+  
+  // If not available, try localStorage
+  if (!apiKey) {
+    apiKey = localStorage.getItem(STORAGE_KEY);
+  }
+  
+  // If still not available, try environment variable (backup)
+  if (!apiKey) {
+    apiKey = import.meta.env.VITE_OPENAI_API_KEY;
+  }
+  
+  // Create and return a new OpenAI client
+  return new OpenAI({
+    apiKey: apiKey || 'dummy-key', // Using dummy key to prevent instantiation error
+    dangerouslyAllowBrowser: true // Allow usage in browser environment
+  });
+};
 
 // Mock recipes to use as fallback
 const mockRecipes: RecipeSuggestion[] = [
@@ -103,6 +124,15 @@ export async function getRecipeSuggestions(pantryItems: string[]): Promise<Recip
     if (!pantryItems || pantryItems.length === 0) {
       throw new Error('No pantry items available to generate recipes.');
     }
+    
+    // Check if we have a valid API key before proceeding
+    const apiKey = window.OPENAI_API_KEY || localStorage.getItem(STORAGE_KEY) || import.meta.env.VITE_OPENAI_API_KEY;
+    
+    if (!apiKey) {
+      throw new Error('OpenAI API key is missing. Please add your API key in settings.');
+    }
+    
+    const openai = getOpenAIClient();
     
     const prompt = `Given these available pantry items: ${pantryItems.join(', ')}, suggest 3 creative recipes. 
     The recipes MUST use at least 2 of the provided pantry items, but can also suggest additional ingredients that might not be in the list.

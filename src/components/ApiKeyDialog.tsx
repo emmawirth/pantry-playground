@@ -26,6 +26,8 @@ export function ApiKeyDialog() {
     setHasStoredKey(!!storedKey);
     if (storedKey) {
       setApiKey(storedKey);
+      // Also set in window for immediate use
+      window.OPENAI_API_KEY = storedKey;
     }
   }, []);
 
@@ -40,12 +42,12 @@ export function ApiKeyDialog() {
     setHasStoredKey(true);
     setOpen(false);
     
-    toast.success('API key saved successfully', {
-      description: 'Your API key has been saved for this session. Reload the page to use it.'
-    });
-
     // Set key in window for immediate use without reload
     window.OPENAI_API_KEY = apiKey;
+    
+    toast.success('API key saved successfully', {
+      description: 'Your API key has been saved for this session.'
+    });
   };
 
   const removeApiKey = () => {
