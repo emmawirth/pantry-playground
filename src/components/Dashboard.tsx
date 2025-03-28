@@ -3,7 +3,7 @@ import { Search, ChevronRight, Sparkles, Heart, Clock, User } from 'lucide-react
 import RecipeCard from './RecipeCard';
 import RecipeSuggestions from './RecipeSuggestions';
 import { useAuth } from '@/context/AuthContext';
-import { Dialog, DialogContent, DialogTrigger } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogTrigger, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { useNavigate } from 'react-router-dom';
 import { FilterOptions } from '@/pages/Index';
 import { toast } from 'sonner';
@@ -119,6 +119,7 @@ const Dashboard: React.FC<DashboardProps> = ({
   const [searchQuery, setSearchQuery] = useState('');
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [showFilters, setShowFilters] = useState(true);
+  const [selectedRecipe, setSelectedRecipe] = useState<(typeof recipesData)[0] | null>(null);
   
   const [pantryItems] = useState([
     'Chicken breast',
@@ -135,7 +136,10 @@ const Dashboard: React.FC<DashboardProps> = ({
   
   const handleRecipeClick = (id: string) => {
     console.log(`Recipe clicked: ${id}`);
-    navigate('/recipes');
+    const recipe = recipesData.find(r => r.id === id);
+    if (recipe) {
+      setSelectedRecipe(recipe);
+    }
   };
 
   const toggleFavorite = (recipeId: string, event: React.MouseEvent) => {
@@ -418,6 +422,72 @@ const Dashboard: React.FC<DashboardProps> = ({
           </div>
         </div>
       )}
+
+      <Dialog open={!!selectedRecipe} onOpenChange={(open) => !open && setSelectedRecipe(null)}>
+        <DialogContent className="max-w-md max-h-[90vh] overflow-y-auto">
+          {selectedRecipe && (
+            <>
+              <DialogHeader>
+                <DialogTitle className="flex items-center justify-between">
+                  <span>{selectedRecipe.title}</span>
+                  <button
+                    className={`w-8 h-8 rounded-full flex items-center justify-center transition-colors ${
+                      favoriteRecipes.includes(selectedRecipe.id) 
+                        ? 'bg-red-500 text-white' 
+                        : 'bg-gray-100 text-gray-600'
+                    }`}
+                    onClick={(e) => toggleFavorite(selectedRecipe.id, e)}
+                  >
+                    <Heart size={16} fill={favoriteRecipes.includes(selectedRecipe.id) ? "white" : "none"} />
+                  </button>
+                </DialogTitle>
+              </DialogHeader>
+              
+              <div className="space-y-4">
+                <div className="aspect-video rounded-lg overflow-hidden">
+                  <img 
+                    src={selectedRecipe.image} 
+                    alt={selectedRecipe.title} 
+                    className="w-full h-full object-cover"
+                  />
+                </div>
+                
+                <div className="flex flex-wrap gap-2">
+                  <div className="flex items-center text-sm text-muted-foreground">
+                    <Clock size={14} className="mr-1" />
+                    <span>{selectedRecipe.cookTime} mins</span>
+                  </div>
+                  <Badge label={selectedRecipe.cookingLevel} variant="level" />
+                  {selectedRecipe.dietaryLabels.map((label, i) => (
+                    <Badge key={i} label={label} variant="dietary" />
+                  ))}
+                </div>
+                
+                <div>
+                  <h3 className="font-semibold text-lg mb-2">Ingredients</h3>
+                  <ul className="list-disc list-inside space-y-1">
+                    {recipesData.find(r => r.id === selectedRecipe.id)?.ingredients?.map((ingredient, i) => (
+                      <li key={i} className="text-sm">{ingredient}</li>
+                    )) || <li className="text-sm text-muted-foreground">No ingredients available</li>}
+                  </ul>
+                </div>
+                
+                <div>
+                  <h3 className="font-semibold text-lg mb-2">Instructions</h3>
+                  <ol className="space-y-3">
+                    {recipesData.find(r => r.id === selectedRecipe.id)?.instructions?.map((instruction, i) => (
+                      <li key={i} className="bg-gray-50 p-3 rounded-lg border-l-4 border-pantry-green">
+                        <span className="font-medium block text-pantry-green mb-1">Step {i+1}</span>
+                        <span className="text-sm">{instruction}</span>
+                      </li>
+                    )) || <li className="text-sm text-muted-foreground">No instructions available</li>}
+                  </ol>
+                </div>
+              </div>
+            </>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };

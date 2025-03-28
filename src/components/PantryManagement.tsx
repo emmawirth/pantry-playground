@@ -419,7 +419,6 @@ const PantryManagement: React.FC<PantryManagementProps> = ({ pantryItems, setPan
       <Dialog 
         open={showRecipeSuggestionsModal} 
         onOpenChange={setShowRecipeSuggestionsModal}
-        className="max-w-3xl"
       >
         <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
           <RecipeSuggestions 

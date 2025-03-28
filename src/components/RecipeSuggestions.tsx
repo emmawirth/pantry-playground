@@ -131,9 +131,17 @@ const RecipeSuggestions: React.FC<RecipeSuggestionsProps> = ({ pantryItems, onCl
             <div className="mb-6">
               <h4 className="font-medium mb-3 text-lg">Ingredients:</h4>
               <ul className="list-disc list-inside space-y-2 pl-2">
-                {selectedRecipe.ingredients.map((ingredient, i) => (
-                  <li key={i} className="text-base">{ingredient}</li>
-                ))}
+                {selectedRecipe.ingredients.map((ingredient, i) => {
+                  const isPantryItem = pantryItems.some(item => 
+                    ingredient.toLowerCase().includes(item.toLowerCase())
+                  );
+                  return (
+                    <li key={i} className={`text-base ${isPantryItem ? 'font-medium text-pantry-green' : ''}`}>
+                      {ingredient}
+                      {isPantryItem && ' (in your pantry)'}
+                    </li>
+                  );
+                })}
               </ul>
             </div>
 
@@ -179,23 +187,37 @@ const RecipeSuggestions: React.FC<RecipeSuggestionsProps> = ({ pantryItems, onCl
       </p>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        {suggestions.map((recipe, index) => (
-          <div 
-            key={index} 
-            className="pantry-card p-4 cursor-pointer hover:bg-gray-50 transition-colors"
-            onClick={() => handleSelectRecipe(recipe)}
-          >
-            <h3 className="text-lg font-semibold mb-2">{recipe.title}</h3>
-            <p className="text-muted-foreground text-sm mb-4 line-clamp-2">{recipe.description}</p>
-            
-            <div className="flex items-center justify-between">
-              <div className="flex items-center space-x-2">
-                <Badge label={recipe.difficulty} variant="level" />
+        {suggestions.map((recipe, index) => {
+          const pantryItemsUsed = pantryItems.filter(item => 
+            recipe.ingredients.some(ingredient => 
+              ingredient.toLowerCase().includes(item.toLowerCase())
+            )
+          );
+          
+          return (
+            <div 
+              key={index} 
+              className="pantry-card p-4 cursor-pointer hover:bg-gray-50 transition-colors"
+              onClick={() => handleSelectRecipe(recipe)}
+            >
+              <h3 className="text-lg font-semibold mb-2">{recipe.title}</h3>
+              <p className="text-muted-foreground text-sm mb-4 line-clamp-2">{recipe.description}</p>
+              
+              <div className="mb-3">
+                <span className="text-xs text-pantry-green font-medium">
+                  Uses {pantryItemsUsed.length} of your pantry items
+                </span>
               </div>
-              <span className="text-sm text-muted-foreground">{recipe.cookingTime}</span>
+              
+              <div className="flex items-center justify-between">
+                <div className="flex items-center space-x-2">
+                  <Badge label={recipe.difficulty} variant="level" />
+                </div>
+                <span className="text-sm text-muted-foreground">{recipe.cookingTime}</span>
+              </div>
             </div>
-          </div>
-        ))}
+          );
+        })}
       </div>
     </div>
   );
